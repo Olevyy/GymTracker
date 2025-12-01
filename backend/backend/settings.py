@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
+from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-jgndr2$1u@@@4q)5i(&^-gcoy@^xx^au0)-r=7u-0f&^(egex_'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -146,23 +147,56 @@ REST_FRAMEWORK = {
     ),
 }
 
-REST_USE_JWT = True
 
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
+
+    # Expiration times for access and refresh tokens
     'ACCESS_TOKEN_LIFETIME':  timedelta(minutes=15),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
+    
+    # When true, refresh tokens are rotated upon use
+    'ROTATE_REFRESH_TOKENS': True,
+    
+    # Blacklist refresh tokens after rotation
+    'BLACKLIST_AFTER_ROTATION': True,
+        
+    # Update last login time on token refresh
+    'UPDATE_LAST_LOGIN': True,
+        
+    # Token signing algorithm
+    'ALGORITHM': 'HS256',
+        
+    # Secret key for signing the tokens
+    'SIGNING_KEY': SECRET_KEY,
 }
+# email must be unique
+ACCOUNT_UNIQUE_EMAIL = True
 
 
-ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_SIGNUP_FIELDS = ['username*', 'email*', 'password1*', 'password2*']
+# which fields are required during signup
+ACCOUNT_SIGNUP_FIELDS = [
+    "username*", 
+    "email*", 
+    "password1*", 
+    "password2*", 
+]
+
+# login with username only
+ACCOUNT_LOGIN_METHODS = {'username'}
 ACCOUNT_EMAIL_VERIFICATION = 'optional' 
 
-REST_AUTH_REGISTER_SERIALIZERS = {
-    'REGISTER_SERIALIZER': 'users.serializers.UserSerializer',
-}
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'test@gymtracker.local'
+
+REST_AUTH = {
+    # Use JWT for authentication
+    'USE_JWT': True,
+    
+    'JWT_AUTH_HTTPONLY':False,
+
+    # Custom serializer for user registration
+    'REGISTER_SERIALIZER': 'users.serializers.UserSerializer',
+}

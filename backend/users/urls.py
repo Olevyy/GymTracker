@@ -13,15 +13,15 @@ urlpatterns = [
     #PUT  /api/auth/user/                  - Update full user profile
     #PATCH /api/auth/user/                 - Update partial user profile
     #POST /api/auth/token/refresh/         - Refresh JWT token
-    path('api/auth/', include('dj_rest_auth.urls')),
+    path('auth/', include('dj_rest_auth.urls')),
 
     # Includes endpoints:
     #POST /api/auth/registration/               - Register new user
     #POST /api/auth/registration/verify-email/  - Verify email using code
     #POST /api/auth/registration/resend-email/  - Resend confirmation email """
-    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
+    path('auth/registration/', include('dj_rest_auth.registration.urls')),
 
     # Includes endpoints:
     #GET /api/account/confirm-email/<key>/   - Confirms email from email link
-    path('api/account/', include('allauth.urls')),
+    path('account/', include('allauth.urls')),
     ]
