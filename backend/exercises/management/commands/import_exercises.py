@@ -40,7 +40,6 @@ class Command(BaseCommand):
             Exercise.objects.update_or_create(
                 name=name,
                 defaults={
-                    'aliases': item.get('aliases', []),
                     'primary_muscles': item.get('primaryMuscles', []),
                     'secondary_muscles': item.get('secondaryMuscles', []),
                     'force': item.get('force'),
@@ -49,10 +48,7 @@ class Command(BaseCommand):
                     'equipment': item.get('equipment'),
                     'category': item.get('category', 'strength'),
                     'instructions': item.get('instructions', []),
-                    'description': item.get('description'),
-                    'tips': item.get('tips', []),
                     'image_urls': images,
-                    'created_by': None,
                 }
             )
             count += 1

@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
-from django.conf import settings
 
 class Exercise(models.Model):
     # --- ENUMS ---
@@ -34,12 +33,9 @@ class Exercise(models.Model):
     name = models.CharField(max_length=255, unique=True)
     
     # Arrays (Postgres ArrayField)
-    aliases = ArrayField(models.CharField(max_length=100), blank=True, default=list)
     primary_muscles = ArrayField(models.CharField(max_length=50), blank=True, default=list)
     secondary_muscles = ArrayField(models.CharField(max_length=50), blank=True, default=list)
     instructions = ArrayField(models.TextField(), blank=True, default=list)
-    tips = ArrayField(models.TextField(), blank=True, default=list)
-    
     # List of image URLs
     image_urls = ArrayField(models.URLField(max_length=500), blank=True, default=list)
 
@@ -49,16 +45,6 @@ class Exercise(models.Model):
     equipment = models.CharField(max_length=50, null=True, blank=True)
     category = models.CharField(max_length=50, choices=Category.choices, default=Category.STRENGTH)
     
-    description = models.TextField(blank=True, null=True)
-
-    # Allow users to add custom exercises (null = system exercise)
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True,
-        related_name='custom_exercises'
-    )
 
     def __str__(self):
         return self.name
