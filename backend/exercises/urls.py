@@ -1,8 +1,11 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from .views import ExerciseViewSet
 
+router = DefaultRouter()
+
+router.register(r'exercises', ExerciseViewSet, basename='exercise')
+
 urlpatterns = [
-    path('', ExerciseViewSet.as_view({'get': 'list'}), name='exercise-list'),
-    # Detail view for a single exercise
-    path('<int:pk>/', ExerciseViewSet.as_view({'get': 'retrieve'}), name='exercise-detail'),
+    path('', include(router.urls)),
 ]
