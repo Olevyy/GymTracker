@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users',
+    'exercises',
+    'workouts',
     'django.contrib.sites',
     'rest_framework',
     'rest_framework.authtoken',
@@ -48,6 +50,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 SITE_ID = 1
