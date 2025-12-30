@@ -4,14 +4,14 @@ from .serializers import WorkoutSerializer, WorkoutSetSerializer, WorkoutExercis
 from django_filters import rest_framework as filters
 
 class WorkoutFilter(filters.FilterSet):
-    date = filters.DateFilter(field_name='start_time', lookup_expr='date')
+    # date = filters.DateFilter(field_name='start_time', lookup_expr='date')
     # Data range filters
     from_date = filters.DateFilter(field_name='start_time', lookup_expr='date__gte')
     to_date = filters.DateFilter(field_name='start_time', lookup_expr='date__lte')
 
     class Meta:
         model = Workout
-        fields = ['status']
+        fields = []
 
 # Auto-generated CRUD endpoints for Workout
 class WorkoutViewSet(viewsets.ModelViewSet):
@@ -34,7 +34,7 @@ class WorkoutViewSet(viewsets.ModelViewSet):
 class WorkoutExerciseViewSet(viewsets.ModelViewSet):
     serializer_class = WorkoutExerciseSerializer
     permission_classes = [permissions.IsAuthenticated]
-    # Wyłączamy 'list', bo listę pobierasz przez WorkoutViewSet
+    # Removes PUT method from allowed methods
     http_method_names = ['get', 'post', 'patch', 'delete'] 
 
     def get_queryset(self):
