@@ -48,6 +48,20 @@ export default function TabsLayout() {
                     tabBarIcon: ({color}) => <Ionicons name="journal" size={24} color={color} />
                 }} 
             />
+            <Tabs.Screen 
+                name="routines" 
+                options={{ 
+                    title: 'Routines',
+                    tabBarIcon: ({color}) => <Ionicons name="clipboard" size={24} color={color} />
+                }} 
+            />
+            <Tabs.Screen 
+                    name="menu" 
+                    options={{ 
+                        title: 'Menu',
+                        tabBarIcon: ({color}) => <Ionicons name="menu" size={24} color={color} />
+                    }} 
+            />
         </Tabs>
     );
 }

@@ -5,4 +5,6 @@ export const ENDPOINTS = {
     REGISTER: "/api/users/auth/registration/",
     LOGOUT: "/api/users/auth/logout/",
     REFRESH: "/api/users/auth/token/refresh/",
+    WORKOUTS: "/api/workouts/",
+    EXERCISES: "/api/exercises/",
 };

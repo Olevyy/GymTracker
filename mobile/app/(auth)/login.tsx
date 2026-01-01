@@ -63,7 +63,7 @@ export default function LoginScreen() {
 
           {/* Password Input */}
           <View className="mt-4">
-            <Text className="text-gray-400 mb-2 ml-1">Hasło</Text>
+            <Text className="text-gray-400 mb-2 ml-1">Password</Text>
             <TextInput
               className="bg-gray-900 text-white p-4 rounded-xl border border-gray-800 focus:border-blue-500"
               placeholder="••••••••"
