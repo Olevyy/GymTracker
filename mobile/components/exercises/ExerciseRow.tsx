@@ -1,4 +1,4 @@
-// components/exercises/ExerciseRow.tsx
+// Renders a single exercise row with image, name, muscles, and category
 import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';

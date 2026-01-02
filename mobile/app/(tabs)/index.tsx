@@ -1,9 +1,27 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+// Welcome screen - create new training
+import React, {useState} from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Alert, ActionSheetIOS, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import {useRouter} from 'expo-router'
+import StartWorkoutModal from '@/components/workout/startWorkoutModal';
 
 export default function HomeScreen() {
+  const router = useRouter();
+
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleStartEmpty = () => {
+      router.push("/screens/workout")
+  };
+
+  const handleStartTemplate = () => {
+      Alert.alert("Coming Soon", "Templates functionality is under construction.");
+  };
+
+  
+
+
   return (
     <SafeAreaView className="flex-1 bg-black">
       <ScrollView contentContainerStyle={{ padding: 16 }}>
@@ -17,6 +35,7 @@ export default function HomeScreen() {
         <TouchableOpacity 
           className="bg-blue-600 rounded-2xl p-6 flex-row items-center justify-between shadow-lg shadow-blue-900/50 mb-6"
           activeOpacity={0.8}
+          onPress={() => setModalVisible(true)}
         >
           <View>
             <Text className="text-white text-xl font-bold">Begin workout</Text>
@@ -44,6 +63,13 @@ export default function HomeScreen() {
         </View>
 
       </ScrollView>
+      <StartWorkoutModal 
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onStartEmpty={handleStartEmpty}
+        onStartTemplate={handleStartTemplate}
+      />
+
     </SafeAreaView>
   );
 }

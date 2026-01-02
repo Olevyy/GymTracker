@@ -85,7 +85,7 @@ export default function ExerciseDetailScreen() {
                         <Image 
                             key={index}
                             source={{ uri: url }}
-                            style={{ width: width, height: 288 }} // 288 = h-72
+                            style={{ width: width, height: 288 }} 
                             resizeMode="contain"
                         />
                     ))
@@ -98,7 +98,7 @@ export default function ExerciseDetailScreen() {
             </ScrollView>
         </View>
 
-        {/* 2. HEADER INFO */}
+        {/* HEADER INFO */}
         <View className="px-5 pt-6">
             <Text className="text-white text-3xl font-bold mb-1">{exercise.name}</Text>
             <Text className="text-blue-500 text-lg capitalize font-medium mb-6">
@@ -124,7 +124,7 @@ export default function ExerciseDetailScreen() {
 
         <View className="h-px bg-gray-900 my-2 mx-5" />
 
-        {/* 3. MUSCLES */}
+        {/* MUSCLES */}
         <View className="px-5 py-4">
             <Text className="text-white text-xl font-bold mb-3">Muscles</Text>
             
@@ -157,7 +157,7 @@ export default function ExerciseDetailScreen() {
 
         <View className="h-px bg-gray-900 my-2 mx-5" />
 
-        {/* 4. INSTRUCTIONS */}
+        {/* INSTRUCTIONS */}
         {exercise.instructions && exercise.instructions.length > 0 && (
             <View className="px-5 py-4">
                 <Text className="text-white text-xl font-bold mb-4">Instructions</Text>

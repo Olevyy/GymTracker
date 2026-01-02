@@ -29,7 +29,7 @@ class Command(BaseCommand):
                 continue
 
             # Sanitizing folder name for image URL construction
-            folder_name = name.replace(" ", "_").replace("/", "_")
+            folder_name = name.replace("(", "").replace(")", "").replace(" ", "_").replace("/", "_").replace(",","")
             
             # Generating image URLs
             images = [

@@ -7,4 +7,6 @@ export const ENDPOINTS = {
     REFRESH: "/api/users/auth/token/refresh/",
     WORKOUTS: "/api/workouts/",
     EXERCISES: "/api/exercises/",
+    WORKOUT_SETS: "/api/workout-sets/",
+    WORKOUT_EXERCISES: "/api/workout-exercises/"
 };

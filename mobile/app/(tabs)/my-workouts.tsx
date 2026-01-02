@@ -4,9 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useHistory } from '@/hooks/useHistory';
+import { useRouter } from 'expo-router';
 
 export default function MyWorkoutsScreen() {
-
+  const router = useRouter();
   const { workouts, loading, error, startDate, endDate, setStartDate, setEndDate, refetch } = useHistory();
 
   const [showStartPicker, setShowStartPicker] = useState(false);
@@ -102,7 +103,10 @@ export default function MyWorkoutsScreen() {
           
           // Each workout item
           renderItem={({ item }) => (
-            <TouchableOpacity className="bg-gray-900 p-4 rounded-xl mb-3 border border-gray-800 flex-row justify-between items-center">
+            <TouchableOpacity 
+            className="bg-gray-900 p-4 rounded-xl mb-3 border border-gray-800 flex-row justify-between items-center"
+            onPress={() => router.push(`/screens/workout/${item.id}`)}
+            >
               <View>
                   <Text className="text-white text-lg font-bold">{item.name || 'Unnamed Workout'}</Text>
                   <Text className="text-gray-400 text-sm mt-1">

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, FlatList, TextInput, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useExercises } from '@/hooks/useExercises';
-import ExerciseRow from './ExerciseSingle'; 
+import ExerciseRow from './ExerciseRow'; 
 import { Exercise, Muscle, Category, Level } from '@/types/exercise';
 
 interface Props {
