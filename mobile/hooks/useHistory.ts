@@ -1,3 +1,4 @@
+// 
 import { useState, useEffect, useCallback } from 'react';
 import { getWorkoutsHistory, WorkoutHistoryItem } from '@/services/historyService';
 
@@ -7,7 +8,11 @@ export function useHistory() {
     const [error, setError] = useState<string | null>(null);
 
     // Default date range: last 30 days
-    const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 30)));
+    const [startDate, setStartDate] = useState(() => {
+    const date = new Date();
+    date.setDate(date.getDate() - 30);
+    return date;
+});
     const [endDate, setEndDate] = useState(new Date());
 
     const fetchHistory = useCallback(async () => {

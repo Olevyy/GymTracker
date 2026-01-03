@@ -66,14 +66,22 @@ class ExerciseViewSet(viewsets.ReadOnlyModelViewSet): # ReadOnly
             workout__user=request.user
         ).select_related('workout').prefetch_related('sets').order_by('-workout__start_time')[:10]
         
-        # Serializing the data
         data = []
         for item in history_items:
+            sets = item.sets.all()
+            serialized_sets = WorkoutSetSerializer(sets, many=True).data
+            
+            session_1rm = 0
+            if sets:
+                # Highest 1rm for each session exercise
+                session_1rm = max([s.one_rep_max for s in sets])
+
             data.append({
                 'workout_id': item.workout.id,
                 'workout_name': item.workout.name,
                 'date': item.workout.start_time,
-                'sets': WorkoutSetSerializer(item.sets.all(), many=True).data # Serializing sets
+                'session_1rm': session_1rm,
+                'sets': serialized_sets
             })
 
         return Response(data)
@@ -98,23 +106,17 @@ class ExerciseViewSet(viewsets.ReadOnlyModelViewSet): # ReadOnly
         max_weight_set = base_qs.order_by('-weight', '-reps').first()
 
         # Best calculated 1RM
-        qs_with_1rm = base_qs.annotate(
-            calculated_1rm=ExpressionWrapper(
-                F('weight') * (1.0 + F('reps') / 30.0),
-                output_field=FloatField()
-            )
-        )
-        best_1rm_set = qs_with_1rm.order_by('-calculated_1rm').first()
+        best_1rm_set = base_qs.order_by('-one_rep_max').first()
 
         # Helper to format record response
         def format_record(record_set, value_key):
             if not record_set:
                 return None
             
-            record_value = getattr(record_set, value_key, 0)
+            record_value = getattr(record_set, value_key)
             
             return {
-                'value': round(record_value, 2),
+                'value': record_value,
                 'weight': record_set.weight,
                 'reps': record_set.reps,
                 'date': record_set.workout_exercise.workout.start_time,
@@ -123,5 +125,5 @@ class ExerciseViewSet(viewsets.ReadOnlyModelViewSet): # ReadOnly
 
         return Response({
             'max_weight': format_record(max_weight_set, value_key='weight'),
-            'best_1rm': format_record(best_1rm_set, value_key='calculated_1rm')
+            'best_1rm': format_record(best_1rm_set, value_key='one_rep_max')
         })

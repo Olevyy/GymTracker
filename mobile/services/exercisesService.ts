@@ -17,6 +17,33 @@ export interface FetchExercisesParams {
     category?: Category; 
 }
 
+export interface ExerciseHistoryItem {
+    workout_id: number;
+    workout_name: string;
+    date: string;
+    session_1rm: number;
+    sets: {
+        id: number;
+        weight: string;
+        reps: number;
+        order: number;
+        one_rep_max: number;
+    }[];
+}
+
+export interface ExerciseRecordValue {
+    value: number;
+    weight: number;
+    reps: number;
+    date: string;
+    workout_id: number;
+}
+
+export interface ExerciseRecords {
+    max_weight: ExerciseRecordValue | null;
+    best_1rm: ExerciseRecordValue | null;
+}
+
 export async function getExercises(params: FetchExercisesParams = {}): Promise<PaginatedExercises> {
     const query = new URLSearchParams();
     
@@ -45,5 +72,17 @@ export async function getExerciseById(id: string | number): Promise<Exercise> {
         throw new Error('Failed to fetch exercise details');
     }
 
+    return await response.json();
+}
+
+export async function getExerciseHistory(id: string): Promise<ExerciseHistoryItem[]> {
+    const response = await apiFetch(`${ENDPOINTS.EXERCISES}${id}/history/`);
+    if (!response.ok) throw new Error('Failed to fetch history');
+    return await response.json();
+}
+
+export async function getExerciseRecords(id: string): Promise<ExerciseRecords> {
+    const response = await apiFetch(`${ENDPOINTS.EXERCISES}${id}/records/`);
+    if (!response.ok) throw new Error('Failed to fetch records');
     return await response.json();
 }

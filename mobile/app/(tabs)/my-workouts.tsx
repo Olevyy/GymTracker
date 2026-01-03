@@ -30,7 +30,7 @@ export default function MyWorkoutsScreen() {
         <Text className="text-white text-2xl font-bold">Workout History</Text>
       </View>
 
-      {/* --- Data filter section --- */}
+      {/* Data filter section */}
       <View className="flex-row justify-between items-center px-4 mb-4">
           {/* From (date) */}
           <TouchableOpacity 

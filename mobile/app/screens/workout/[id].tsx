@@ -28,7 +28,7 @@ export default function WorkoutDetailScreen() {
     return (
         <SafeAreaView className="flex-1 bg-black">
             
-            {/* --- HEADER --- */}
+            {/* HEADER  */}
         <View className="flex-row items-center justify-between p-4 border-b border-gray-900 bg-black">
             <View className="flex-row items-center flex-1 mr-2">
                 <TouchableOpacity onPress={() => router.back()} className="mr-4">
@@ -63,17 +63,36 @@ export default function WorkoutDetailScreen() {
         {workout.exercises.map((item) => (
             <View key={item.id} className="bg-gray-900 mb-4 rounded-xl overflow-hidden border border-gray-800">
                 
-            {/* Exercise Header */}
+           {/* Exercise Header */}
             <View className="flex-row justify-between items-center p-3 bg-gray-800/50">
-                <View className="flex-row items-center flex-1">
+                
+                <TouchableOpacity 
+                    className="flex-row items-center flex-1"
+                    onPress={() => router.push(`/screens/exercises/${item.exercise_details.id}`)}
+                >
                     {item.exercise_details.image_urls?.[0] ? (
-                        <Image source={{ uri: item.exercise_details.image_urls[0] }} className="w-10 h-10 rounded-full bg-white mr-3" resizeMode="cover"/>
+                        <Image 
+                            source={{ uri: item.exercise_details.image_urls[0] }} 
+                            className="w-10 h-10 rounded-full bg-white mr-3" 
+                            resizeMode="cover"
+                        />
                     ) : (
-                        <View className="w-10 h-10 rounded-full bg-gray-700 mr-3 items-center justify-center"><Ionicons name="barbell" size={16} color="white" /></View>
+                        <View className="w-10 h-10 rounded-full bg-gray-700 mr-3 items-center justify-center">
+                            <Ionicons name="barbell" size={16} color="white" />
+                        </View>
                     )}
-                    <Text className="text-white font-bold text-lg flex-1">{item.exercise_details.name}</Text>
-                </View>
-                <TouchableOpacity onPress={() => handleDeleteExercise(item.id)} className="p-2">
+                    
+                    {/* View details */}
+                    <View className="flex-1">
+                        <Text className="text-white font-bold text-lg">
+                            {item.exercise_details.name}
+                        </Text>
+                        <Text className="text-blue-500 text-[10px] font-bold">
+                            View details
+                        </Text>
+                    </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleDeleteExercise(item.id)} className="p-2 ml-2">
                     <Ionicons name="trash-outline" size={18} color="#EF4444" />
                 </TouchableOpacity>
             </View>
