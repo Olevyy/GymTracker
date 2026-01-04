@@ -7,7 +7,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         JSON_URL = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json"
-        BASE_IMAGE_URL = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises"
+        BASE_IMAGE_URL = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises"
 
         self.stdout.write("Downloading exercises data from GitHub (yuhonas/free-exercise-db)...")
         
@@ -29,12 +29,12 @@ class Command(BaseCommand):
                 continue
 
             # Sanitizing folder name for image URL construction
-            folder_name = name.replace(" ", "_").replace("/", "_")
+            folder_name = name.replace("(", "").replace(")", "").replace(" ", "_").replace("/", "_").replace(",","")
             
             # Generating image URLs
             images = [
-                f"{BASE_IMAGE_URL}/{folder_name}/images/0.jpg",
-                f"{BASE_IMAGE_URL}/{folder_name}/images/1.jpg"
+                f"{BASE_IMAGE_URL}/{folder_name}/0.jpg",
+                f"{BASE_IMAGE_URL}/{folder_name}/1.jpg"
             ]
 
             Exercise.objects.update_or_create(
