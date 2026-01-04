@@ -1,4 +1,4 @@
-// 
+// Workout history
 import { useState, useEffect, useCallback } from 'react';
 import { getWorkoutsHistory, WorkoutHistoryItem } from '@/services/historyService';
 

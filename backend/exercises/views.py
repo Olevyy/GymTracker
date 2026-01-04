@@ -89,10 +89,9 @@ class ExerciseViewSet(viewsets.ReadOnlyModelViewSet): # ReadOnly
     @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
     def records(self, request, pk=None):
         from workouts.models import WorkoutSet
-        """
-        Retrieves max weight and best 1RM for this exercise for the user
-        URL: /api/exercises/{id}/records/
-        """
+
+        #Retrieves max weight and best 1RM for this exercise for the user
+
         base_qs = WorkoutSet.objects.filter(
             workout_exercise__exercise_id=pk,
             workout_exercise__workout__user=request.user

@@ -2,6 +2,9 @@ from rest_framework import viewsets, permissions, exceptions
 from .models import Workout, WorkoutSet, WorkoutExercise
 from .serializers import WorkoutSerializer, WorkoutSetSerializer, WorkoutExerciseSerializer
 from django_filters import rest_framework as filters
+from .services import get_weekly_stats
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 class WorkoutFilter(filters.FilterSet):
     # date = filters.DateFilter(field_name='start_time', lookup_expr='date')
@@ -28,6 +31,12 @@ class WorkoutViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    # Get monthly stats for user
+    @action(detail=False, methods=['get'], url_path='weekly-stats')
+    def weekly_stats(self, request):
+        data = get_weekly_stats(request.user)
+        return Response(data)
 
 
 # Single exercise within a workout

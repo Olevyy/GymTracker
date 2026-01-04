@@ -11,8 +11,6 @@ export default function ExerciseLibraryScreen() {
   const router = useRouter();
 
   const handleExercisePress = (exercise: Exercise) => {
-      console.log('Pressed exercise:', exercise.id);
-      console.log('Navigating to:', `/screens/exercises/${exercise.id}`);
       // Navigate to exercise detail screen
       router.push(`/screens/exercises/${exercise.id}`);
   };
