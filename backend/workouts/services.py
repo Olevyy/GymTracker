@@ -34,6 +34,8 @@ MUSCLE_MAPPING = {
     "neck":         ["neck"],
 }
 
+STATIC_BODY_PARTS = ["head", "hands", "feet", "ankles"]
+
 def get_weekly_stats(user):
     
     before = timezone.now() - timedelta(days=7) # Earliest we track
@@ -82,7 +84,7 @@ def get_weekly_stats(user):
     body_data_list = []
 
     # Generate all muscles so untrained muscles also will have value
-    all_supported_muscles = set()
+    all_supported_muscles =  set(STATIC_BODY_PARTS) # Always default color
     for slug_list in MUSCLE_MAPPING.values():
         for slug in slug_list:
             all_supported_muscles.add(slug)

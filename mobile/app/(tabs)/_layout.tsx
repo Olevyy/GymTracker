@@ -49,9 +49,9 @@ export default function TabsLayout() {
                 }} 
             />
             <Tabs.Screen 
-                name="routines" 
+                name="templates" 
                 options={{ 
-                    title: 'Routines',
+                    title: 'Templates',
                     tabBarIcon: ({color}) => <Ionicons name="clipboard" size={24} color={color} />
                 }} 
             />

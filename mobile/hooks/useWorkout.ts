@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import { createWorkout, CreateWorkoutPayload } from '@/services/workoutService';
 import { Exercise } from '@/types/exercise';
 import { ActiveExercise } from '@/components/workout/workoutExercise'; 
+import { WorkoutTemplate } from '@/services/templateService';
 
 export function useActiveWorkout() {
     const router = useRouter();
@@ -126,6 +127,7 @@ export function useActiveWorkout() {
             setIsSubmitting(false);
         }
     };
+    
 
     return {
         // State
