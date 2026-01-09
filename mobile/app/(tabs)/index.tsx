@@ -7,6 +7,7 @@ import {useRouter} from 'expo-router'
 import StartWorkoutModal from '@/components/workout/startWorkoutModal';
 import { getWorkoutStats, WorkoutStats } from '@/services/workoutService';
 import HeatmapViewer from '@/components/main/heatmapViewer';
+import { useActiveWorkout } from '@/contexts/WorkoutContext';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -14,13 +15,16 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-
+  const { resetWorkout } = useActiveWorkout();
   const handleStartEmpty = () => {
+
       router.push("/screens/workout")
   };
 
   const handleStartTemplate = () => {
-      Alert.alert("Coming Soon", "Templates functionality is under construction.");
+      resetWorkout();
+      setModalVisible(false);
+      router.push("/screens/workout/templateSelector");
   };
 
   const fetchStats = useCallback(async () => {

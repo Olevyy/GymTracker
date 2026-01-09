@@ -1,6 +1,5 @@
-// Logic around managing workout exercises, sets - sends data at the very end of training,
-// most changes stored locally (smoother experience - with poor connection)
-import { useState } from 'react';
+// Context to strore active workout data globally in app
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -9,19 +8,49 @@ import { Exercise } from '@/types/exercise';
 import { ActiveExercise } from '@/components/workout/workoutExercise'; 
 import { WorkoutTemplate } from '@/services/templateService';
 
-export function useActiveWorkout() {
+
+interface WorkoutContextType {
+    workoutName: string;
+    setWorkoutName: (name: string) => void;
+    notes: string;
+    setNotes: (notes: string) => void;
+    activeExercises: ActiveExercise[];
+    isSelectorVisible: boolean;
+    setIsSelectorVisible: (visible: boolean) => void;
+    isSubmitting: boolean;
+    
+    addExercise: (exercise: Exercise) => void;
+    removeExercise: (exIndex: number) => void;
+    addSet: (exIndex: number) => void;
+    removeSet: (exIndex: number, setIndex: number) => void;
+    updateSet: (exIndex: number, setIndex: number, field: 'weight' | 'reps', value: string) => void;
+    
+    cancelWorkout: () => void;
+    finishWorkout: () => Promise<void>;
+    startWorkoutFromTemplate: (template: WorkoutTemplate) => void;
+    resetWorkout: () => void; 
+}
+
+export const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
+
+export function WorkoutProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
 
-   
     const [workoutName, setWorkoutName] = useState('New Workout');
     const [notes, setNotes] = useState('');
-    const [startTime] = useState(new Date().toISOString());
     const [activeExercises, setActiveExercises] = useState<ActiveExercise[]>([]);
     
     const [isSelectorVisible, setIsSelectorVisible] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Exercises
+    const resetWorkout = () => {
+        setWorkoutName('New Workout');
+        setNotes('');
+        setActiveExercises([]);
+        setIsSubmitting(false);
+    };
+
+    // EXERCISES
 
     const addExercise = (exercise: Exercise) => {
         const newExercise: ActiveExercise = {
@@ -73,13 +102,46 @@ export function useActiveWorkout() {
         setActiveExercises(updated);
     };
 
-    // WORKOUT
+   
 
     const cancelWorkout = () => {
         Alert.alert("Cancel Workout", "Are you sure? All progress will be lost.", [
             { text: "No", style: "cancel" },
-            { text: "Yes, Discard", style: "destructive", onPress: () => router.back() }
+            { 
+                text: "Yes, Discard", 
+                style: "destructive", 
+                onPress: () => {
+                    resetWorkout(); 
+                    router.back(); 
+                }
+            }
         ]);
+    };
+
+    const startWorkoutFromTemplate = (template: WorkoutTemplate) => {
+        resetWorkout();
+        
+        setWorkoutName(template.name);
+        setNotes(template.notes || '');
+
+        const mappedExercises = template.exercises.map((templateEx) => ({
+            exercise: {
+                id: templateEx.exercise_id,
+                name: templateEx.exercise_name,
+                primary_muscles: [], 
+                secondary_muscles: [],
+                image_urls: [],
+                category: null,
+                level: null
+            } as any, 
+            sets: Array.from({ length: templateEx.sets_count }).map((_, i) => ({
+                id: Date.now().toString() + i + Math.random(),
+                weight: '',
+                reps: '' 
+            }))
+        }));
+
+        setActiveExercises(mappedExercises);
     };
 
     const finishWorkout = async () => {
@@ -91,10 +153,8 @@ export function useActiveWorkout() {
         setIsSubmitting(true);
 
         try {
-            // Prepare Payload
             const payload: CreateWorkoutPayload = {
                 name: workoutName || "Unnamed Workout",
-                start_time: startTime,
                 notes: notes,
                 exercises: activeExercises.map((ex, exIndex) => ({
                     exercise_id: ex.exercise.id,
@@ -118,7 +178,13 @@ export function useActiveWorkout() {
             await createWorkout(payload);
             
             Alert.alert("Success", "Workout saved!", [
-                { text: "OK", onPress: () => router.replace('/(tabs)/my-workouts') }
+                { 
+                    text: "OK", 
+                    onPress: () => {
+                        resetWorkout(); 
+                        router.replace('/(tabs)/my-workouts');
+                    } 
+                }
             ]);
 
         } catch (error: any) {
@@ -127,23 +193,27 @@ export function useActiveWorkout() {
             setIsSubmitting(false);
         }
     };
-    
 
-    return {
-        // State
-        workoutName, setWorkoutName,
-        notes, setNotes,
-        activeExercises,
-        isSelectorVisible, setIsSelectorVisible,
-        isSubmitting,
-        
-        // Methods
-        addExercise,
-        removeExercise,
-        addSet,
-        removeSet,
-        updateSet,
-        cancelWorkout,
-        finishWorkout
-    };
+    return (
+        <WorkoutContext.Provider value={{
+            workoutName, setWorkoutName,
+            notes, setNotes,
+            activeExercises,
+            isSelectorVisible, setIsSelectorVisible,
+            isSubmitting,
+            addExercise, removeExercise,
+            addSet, removeSet, updateSet,
+            cancelWorkout, finishWorkout, startWorkoutFromTemplate, resetWorkout
+        }}>
+            {children}
+        </WorkoutContext.Provider>
+    );
+}
+
+export function useActiveWorkout() {
+    const context = useContext(WorkoutContext);
+    if (context === undefined) {
+        throw new Error('useActiveWorkout must be used within a WorkoutProvider');
+    }
+    return context;
 }
