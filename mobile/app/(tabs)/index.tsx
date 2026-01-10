@@ -16,15 +16,40 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const { resetWorkout } = useActiveWorkout();
-  const handleStartEmpty = () => {
+  const { activeExercises, startEmptyWorkout, isLoadingStorage } = useActiveWorkout();
 
-      router.push("/screens/workout")
+  const handleBeginPress = () => {
+      if (activeExercises.length > 0) {
+          Alert.alert(
+              "Workout in Progress",
+              "Starting a new workout will discard your current progress.",
+              [
+                  { text: "Cancel", style: "cancel" },
+                  { 
+                      text: "Start New", 
+                      style: "destructive", 
+                      onPress: () => setModalVisible(true)
+                  }
+              ]
+          );
+      } else {
+          setModalVisible(true);
+      }
+  };
+
+  const handleStartEmpty = () => {
+      setModalVisible(false);
+      startEmptyWorkout(); 
+      router.push("/screens/workout/"); 
   };
 
   const handleStartTemplate = () => {
-      resetWorkout();
       setModalVisible(false);
       router.push("/screens/workout/templateSelector");
+  };
+
+  const handleResume = () => {
+      router.push("/screens/workout/");
   };
 
   const fetchStats = useCallback(async () => {
@@ -64,10 +89,29 @@ export default function HomeScreen() {
           <Text className="text-white text-3xl font-bold">Ready for some grind? 💪</Text>
         </View>
 
+        {/* Continue exercise alert */}
+        {!isLoadingStorage && activeExercises.length > 0 && (
+             <TouchableOpacity 
+                className="bg-green-600 rounded-2xl p-6 flex-row items-center justify-between shadow-lg shadow-green-900/50 mb-6 border border-green-500"
+                activeOpacity={0.8}
+                onPress={handleResume}
+              >
+                <View>
+                  <Text className="text-white text-xl font-bold">Resume Workout</Text>
+                  <Text className="text-green-100 text-sm mt-1">
+                      {activeExercises.length} exercises in progress
+                  </Text>
+                </View>
+                <View className="bg-white/20 p-3 rounded-full">
+                  <Ionicons name="play" size={32} color="white" />
+                </View>
+            </TouchableOpacity>
+        )}
+
         <TouchableOpacity 
           className="bg-blue-600 rounded-2xl p-6 flex-row items-center justify-between shadow-lg shadow-blue-900/50 mb-6"
           activeOpacity={0.8}
-          onPress={() => setModalVisible(true)}
+          onPress={handleBeginPress}
         >
           <View>
             <Text className="text-white text-xl font-bold">Begin workout</Text>

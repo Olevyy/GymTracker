@@ -3,12 +3,14 @@ import React from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-
+import { useRouter } from 'expo-router';
 import ExerciseSelector from '@/components/exercises/ExerciseSelector';
 import ActiveExerciseCard from '@/components/workout/workoutExercise';
-import { useActiveWorkout } from '@/hooks/useWorkout'; 
+import { useActiveWorkout } from '@/contexts/WorkoutContext';
 
 export default function ActiveWorkoutScreen() {
+    const router = useRouter();
+
   const {
     workoutName, setWorkoutName,
     notes, setNotes,
@@ -20,12 +22,16 @@ export default function ActiveWorkoutScreen() {
     cancelWorkout, finishWorkout
   } = useActiveWorkout();
 
+  const handleMinimize = () => {
+      router.back();
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-black">
         {/* HEADER */}
         <View className="flex-row justify-between items-center p-4 border-b border-gray-900">
-            <TouchableOpacity onPress={cancelWorkout}>
-                <Text className="text-red-500 text-lg">Cancel</Text>
+            <TouchableOpacity onPress={handleMinimize} className="p-2">
+                <Ionicons name="chevron-down" size={28} color="white" />
             </TouchableOpacity>
             
             <Text className="text-white text-lg font-bold">Active Workout</Text>
@@ -79,6 +85,13 @@ export default function ActiveWorkoutScreen() {
             >
                 <Text className="text-white font-bold text-lg">Add Exercise</Text>
             </TouchableOpacity>
+            <TouchableOpacity 
+                onPress={cancelWorkout}
+                className="mb-10 p-4 rounded-xl items-center justify-center border border-red-900/50"
+            >
+                <Text className="text-red-500 font-bold text-lg">Discard Workout</Text>
+            </TouchableOpacity>
+
         </ScrollView>
 
         {/* Exercise selector */}
