@@ -38,12 +38,12 @@ export default function ExerciseRow({ item, onPress }: Props) {
 
     return (
         <TouchableOpacity 
-            className="flex-row bg-gray-900 mb-3 rounded-xl overflow-hidden border border-gray-800 h-24"
+            className="flex-row bg-gray-900 mb-3 rounded-xl overflow-hidden border border-gray-800 h-32"
             onPress={() => onPress(item)}
             activeOpacity={0.7}
         >
             {/* Image */}
-        <View className="w-24 h-full bg-white items-center justify-center">
+        <View className="w-40 h-full bg-gray items-center justify-center overflow-hidden relative">
             {imageUrl && !imageError ? (
                 <Image 
                     source={{ uri: imageUrl }} 

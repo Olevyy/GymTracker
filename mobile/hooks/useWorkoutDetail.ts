@@ -43,7 +43,7 @@ export function useWorkoutDetail(workoutId: string | undefined) {
         fetchDetails();
     }, [fetchDetails]);
 
-    // --- ACTIONS: MODAL & INPUTS ---
+    // modal inputs
     const openEditModal = (set: HistorySet) => {
         setEditingSet(set);
         setEditWeight(set.weight.toString());
@@ -56,8 +56,7 @@ export function useWorkoutDetail(workoutId: string | undefined) {
         setEditReps('');
     };
 
-    // --- ACTIONS: API OPERATIONS ---
-
+    // Operations
     const saveSetChanges = async () => {
         if (!editingSet) return;
         setIsSaving(true);
@@ -67,7 +66,7 @@ export function useWorkoutDetail(workoutId: string | undefined) {
                 reps: parseInt(editReps)
             });
             closeEditModal();
-            fetchDetails(); // Odśwież widok
+            fetchDetails();
         } catch (error) {
             Alert.alert("Error", "Failed to update set");
         } finally {

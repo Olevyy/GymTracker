@@ -8,5 +8,6 @@ export const ENDPOINTS = {
     WORKOUTS: "/api/workouts/",
     EXERCISES: "/api/exercises/",
     WORKOUT_SETS: "/api/workout-sets/",
-    WORKOUT_EXERCISES: "/api/workout-exercises/"
+    WORKOUT_EXERCISES: "/api/workout-exercises/",
+    TEMPLATES: "/api/templates/"
 };
