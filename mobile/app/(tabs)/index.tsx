@@ -80,7 +80,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-black" edges={['top']}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         
 

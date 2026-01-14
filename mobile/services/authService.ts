@@ -1,5 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import { API_URL, ENDPOINTS } from '@/constants/api';
+import { router } from 'expo-router';
 
 
 const ACCESS_KEY = 'accessToken';
@@ -57,6 +58,7 @@ export async function logoutUser() {
 
     if (refresh) {
         try {
+            router.replace("/(auth)/login");
             await fetch(`${API_URL}${ENDPOINTS.LOGOUT}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

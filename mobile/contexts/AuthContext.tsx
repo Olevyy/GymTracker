@@ -31,6 +31,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setLoading(false);
         }
     };
+
+
 // Check auth status on app start
     useEffect(() => {
         checkAuth();

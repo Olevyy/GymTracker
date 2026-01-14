@@ -25,7 +25,7 @@ export default function MyWorkoutsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-black" edges={['top']}>
       <View className="p-4 pb-2">
         <Text className="text-white text-2xl font-bold">Workout History</Text>
       </View>

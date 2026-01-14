@@ -3,11 +3,11 @@ import { Tabs, useRouter } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 import { useAuth } from "@/contexts/AuthContext";
 import { Ionicons } from '@expo/vector-icons'; 
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function TabsLayout() {
     const router = useRouter();
     const { isAuthenticated, loading } = useAuth();
-
+    const insets = useSafeAreaInsets();
     useEffect(() => {
         if (!loading && !isAuthenticated) {
             router.replace("/(auth)/login");
@@ -28,11 +28,12 @@ export default function TabsLayout() {
             tabBarStyle: { 
                 backgroundColor: '#000000', 
                 borderTopColor: '#333333', 
-                height: 60,
-                paddingBottom: 5 
+                height: 60 + insets.bottom,
+                paddingBottom: insets.bottom,
             },
             tabBarActiveTintColor: '#3B82F6', 
             tabBarInactiveTintColor: '#6B7280',
+            
         }}>
             <Tabs.Screen 
                 name="index" 
