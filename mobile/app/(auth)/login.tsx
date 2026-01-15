@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvo
 import { useRouter, Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-
+import {Image} from 'react-native';
 import { loginUser } from '@/services/authService';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -42,8 +42,16 @@ export default function LoginScreen() {
         className="flex-1 justify-center px-6"
       >
         <View className="items-center mb-10">
-          <Ionicons name="barbell" size={64} color="#3B82F6" />
-          <Text className="text-white text-3xl font-bold mt-4">GymTracker</Text>
+          <Image
+            source={require('@/assets/images/ic_launcher_foreground.png')}
+            style={{ 
+            width: 110,
+            height: 110,
+
+            }}
+
+          />
+          <Text className="text-white text-3xl font-bold mt-4">Lightweight</Text>
           <Text className="text-gray-400 text-base mt-2">Welcome again bro 🐗</Text>
         </View>
 

@@ -64,10 +64,10 @@ export default function RegisterScreen() {
 
           <View className="space-y-4">
             <View>
-                <Text className="text-gray-400 mb-2 ml-1">Nazwa użytkownika</Text>
+                <Text className="text-gray-400 mb-2 ml-1">Username</Text>
                 <TextInput
                 className="bg-gray-900 text-white p-4 rounded-xl border border-gray-800"
-                placeholder="Np. Arnold"
+                placeholder="E.g. John"
                 placeholderTextColor="#6B7280"
                 autoCapitalize="none"
                 value={form.username}
@@ -79,7 +79,7 @@ export default function RegisterScreen() {
                 <Text className="text-gray-400 mb-2 ml-1">Email</Text>
                 <TextInput
                 className="bg-gray-900 text-white p-4 rounded-xl border border-gray-800"
-                placeholder="adres@email.com"
+                placeholder="adress@email.com"
                 placeholderTextColor="#6B7280"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -92,7 +92,7 @@ export default function RegisterScreen() {
                 <Text className="text-gray-400 mb-2 ml-1">Password</Text>
                 <TextInput
                 className="bg-gray-900 text-white p-4 rounded-xl border border-gray-800"
-                placeholder="Min. 8 znaków"
+                placeholder="Min. 8 characters"
                 placeholderTextColor="#6B7280"
                 secureTextEntry
                 value={form.password}
