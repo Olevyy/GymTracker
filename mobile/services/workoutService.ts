@@ -18,6 +18,7 @@ export interface WorkoutExercisePayload {
 export interface CreateWorkoutPayload {
     name: string;
     notes: string;
+    start_time: string;
     exercises: WorkoutExercisePayload[];
 }
 

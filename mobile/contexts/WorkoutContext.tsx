@@ -206,6 +206,7 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
             const payload: CreateWorkoutPayload = {
                 name: workoutName || "Unnamed Workout",
                 notes: notes,
+                start_time: new Date().toISOString(),
                 exercises: activeExercises.map((ex, exIndex) => ({
                     exercise_id: ex.exercise.id,
                     order: exIndex + 1,
