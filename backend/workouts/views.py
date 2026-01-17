@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions, exceptions
 from .models import Workout, WorkoutSet, WorkoutExercise
 from .serializers import WorkoutSerializer, WorkoutSetSerializer, WorkoutExerciseSerializer
 from django_filters import rest_framework as filters
-from .services import get_weekly_stats
+from .services import get_weekly_stats, get_volume_workouts_data
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -36,6 +36,18 @@ class WorkoutViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='weekly-stats')
     def weekly_stats(self, request):
         data = get_weekly_stats(request.user)
+        return Response(data)
+    
+    # Get volume chart data
+    @action(detail=False, methods=['get'], url_path='volume-chart')
+    def volume_chart(self, request):
+
+        muscle = request.query_params.get('muscle', None)
+        data = get_volume_workouts_data(
+            user=request.user,
+            muscle=muscle
+        )
+        
         return Response(data)
 
 

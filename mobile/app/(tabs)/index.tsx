@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator} fro
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import {useRouter} from 'expo-router'
-import StartWorkoutModal from '@/components/workout/startWorkoutModal';
+import StartWorkoutModal from '@/components/main/startWorkoutModal';
 import { getWorkoutStats, WorkoutStats } from '@/services/workoutService';
 import HeatmapViewer from '@/components/main/heatmapViewer';
 import { useActiveWorkout } from '@/contexts/WorkoutContext';

@@ -3,8 +3,7 @@ from django.utils import timezone
 from datetime import timedelta
 from .models import Workout, WorkoutSet
 from collections import defaultdict
-
-
+from django.db.models import Q
 
 def get_heat_intensity(sets_count):
     if sets_count <= 0: return 1 
@@ -100,4 +99,51 @@ def get_weekly_stats(user):
         "workouts_count": workouts_count,
         "total_volume": round(volume, 1),
         "body_parts": body_data_list  # {Slug, intensivity}
+    }
+
+
+def get_volume_workouts_data(user, filter_type='all', muscle = None, days = 365):
+    today = timezone.now().date()
+    start_time = today - timedelta(days=days)
+
+    sets = WorkoutSet.objects.filter( # Sets in period for user
+        workout_exercise__workout__user=user,
+        workout_exercise__workout__start_time__date__gte=start_time,
+        workout_exercise__workout__start_time__date__lte=today
+    ).select_related('workout_exercise__workout', 'workout_exercise__exercise') # To avoid additional queries
+
+    if muscle: 
+        sets = sets.filter( # Contains muscle in primary or secondary muscles
+            Q(workout_exercise__exercise__primary_muscles__icontains=muscle) |
+            Q(workout_exercise__exercise__secondary_muscles__icontains=muscle)
+    )
+
+
+    weekly_volume = defaultdict(float)
+    unique_workouts = set() # To count overall amount of workouts in period
+    for one_set in sets:
+        workout_date = one_set.workout_exercise.workout.start_time.date()
+        monday = workout_date - timedelta(days=workout_date.weekday()) # Get monday of that week
+        vol = float(one_set.weight) * one_set.reps
+        weekly_volume[monday] += vol
+        unique_workouts.add(one_set.workout_exercise.workout.id)
+    
+    chart_data = []
+
+
+    cur_monday = start_time - timedelta(days=start_time.weekday())
+    while cur_monday <= today: # For each week add data point
+        volume = weekly_volume.get(cur_monday, 0)
+        chart_data.append({
+        "value": round(volume, 1),
+        "label": cur_monday.strftime('%d.%m'), # Day and month
+        })
+        cur_monday += timedelta(weeks=1) # Next week
+
+    return {
+    "chart": chart_data,
+    "summary": {
+        "total_workouts": len(unique_workouts), 
+        "total_volume": round(sum(weekly_volume.values()), 1)
+        }
     }
