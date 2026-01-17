@@ -4,6 +4,7 @@ import { View, Text, TextInput, TouchableOpacity, TextInputProps } from 'react-n
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router'; 
 import { Exercise } from '@/types/exercise';
+import { calculateOneRepMax } from '@/utils/calculations';
 
 export interface ActiveSet {
     id: string;
@@ -28,7 +29,6 @@ interface Props {
 const SetInput = ({ 
     value, 
     onChangeText, 
-    placeholder, 
     ...props 
 }: TextInputProps & { value: string, onChangeText: (text: string) => void }) => {
     
@@ -37,19 +37,17 @@ const SetInput = ({
     return (
         <TextInput
             {...props}
-            value={value}
+            value={value && value !== '0' ? String(value) : ''}
             onChangeText={onChangeText}
-            placeholder={isFocused ? '' : placeholder} 
-            placeholderTextColor="#374151"
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            
             className="bg-black text-white text-center h-12 rounded font-bold text-xl w-full" 
             style={{ paddingVertical: 0 }}
             selectionColor="#3B82F6"
+            
             textAlign="center"
             textAlignVertical="center"
-            keyboardType="numeric"
+            keyboardType={'numeric'}
         />
     );
 };
@@ -90,27 +88,29 @@ export default function ActiveExerciseCard({ item, exerciseIndex, onUpdateSet, o
       {/* Helper info */}
       <View className="flex-row mb-2 px-2">
         <Text className="text-gray-500 text-xs font-bold w-8 text-center">SET</Text>
-        <Text className="text-gray-500 text-xs font-bold flex-1 text-center">WEIGHT (KG)</Text>
-        <Text className="text-gray-500 text-xs font-bold flex-1 text-center">REPS</Text>
+        <Text className="text-gray-500 text-xs pl-6 font-bold flex-1 text-center">WEIGHT (KG)</Text>
+        <Text className="text-gray-500 text-xs pl-4 font-bold flex-1 text-center">REPS</Text>
+        <Text className="text-gray-500 text-xs font-bold w-10 text-center">1RM</Text>
         <View className="w-8" />
       </View>
 
       {/* List of sets*/}
-      {item.sets.map((set, setIndex) => (
+      {item.sets.map((set, setIndex) => {
+        const estimated1RM = calculateOneRepMax(set.weight, set.reps);
+        
+        return (
+
         <View key={set.id} className="flex-row items-center mb-2 bg-gray-800/50 rounded-lg p-1">
-            
-            {/* NO*/}
             <View className="w-8 items-center justify-center bg-gray-800 h-12 rounded">
                 <Text className="text-gray-400 font-bold text-sm">{setIndex + 1}</Text>
             </View>
 
             {/* Weight (KG) */}
             <View className="flex-1 px-2">
-                <SetInput
-                    value={set.weight}
-                    onChangeText={(text) => onUpdateSet(exerciseIndex, setIndex, 'weight', text)}
-                    placeholder="-"
-                />
+                    <SetInput
+                        value={set.weight}
+                        onChangeText={(text) => onUpdateSet(exerciseIndex, setIndex, 'weight', text)}
+                    />
             </View>
 
             {/* (REPS) */}
@@ -118,8 +118,14 @@ export default function ActiveExerciseCard({ item, exerciseIndex, onUpdateSet, o
                 <SetInput
                     value={set.reps}
                     onChangeText={(text) => onUpdateSet(exerciseIndex, setIndex, 'reps', text)}
-                    placeholder="-"
                 />
+            </View>
+
+            {/* 1RM */}
+            <View className="w-10 items-center justify-center h-12">
+                <Text className={`font-bold text-sm ${estimated1RM !== '-' ? 'text-blue-400' : 'text-gray-600'}`}>
+                    {estimated1RM}
+                </Text>
             </View>
 
             {/* Remove */}
@@ -130,7 +136,8 @@ export default function ActiveExerciseCard({ item, exerciseIndex, onUpdateSet, o
                 <Ionicons name="trash-outline" size={20} color="#EF4444" />
             </TouchableOpacity>
         </View>
-      ))}
+        );  
+        })}
 
       <TouchableOpacity 
         onPress={() => onAddSet(exerciseIndex)} 
