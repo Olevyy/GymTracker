@@ -8,7 +8,6 @@ class TemplateExerciseSerializer(serializers.ModelSerializer):
     exercise_id = serializers.PrimaryKeyRelatedField(
         queryset=Exercise.objects.all(), 
         source='exercise',
-        write_only=True
     )
 
     class Meta:
