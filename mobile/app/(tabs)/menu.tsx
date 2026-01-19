@@ -75,7 +75,7 @@ export default function MenuScreen() {
             subtitle="Progress, volume, frequency"
             icon="stats-chart-outline" 
             color="#10B981" // Green
-            onPress={() => console.log("Navigate to Stats")} 
+            onPress={() => router.push('/screens/menu/stats')} 
         />
         <MenuOption 
             title="1RM / RPE Calculator" 

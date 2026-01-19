@@ -109,7 +109,7 @@ export default function WorkoutDetailScreen() {
             {item.sets.map((set, index) => (
                 <TouchableOpacity 
                     key={set.id} 
-                    onPress={() => openEditModal(set)} // Używamy funkcji z hooka
+                    onPress={() => openEditModal(set)}
                     className="flex-row px-4 py-3 border-b border-gray-800/50 active:bg-gray-800"
                 >
                     <View className="w-10 items-center justify-center bg-gray-800 h-6 rounded">
