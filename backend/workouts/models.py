@@ -6,12 +6,15 @@ from exercises.models import Exercise  # Import exercise model
 class Workout(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='workouts') # Training belongs to a user
     name = models.CharField(max_length=100, default="Training Session")
-    start_time = models.DateTimeField() # Data rozpoczęcia
+    start_time = models.DateTimeField(db_index=True) # Start time, indexed for faster queries
     status = models.CharField(max_length=20, default='completed')  # e.g., completed, planned
     notes = models.TextField(blank=True, null=True)
+    total_volume  = models.FloatField(default=0)  # Total volume lifted in the workout
 
     class Meta:
-        ordering = ['-start_time']  # Newest first
+        indexes = [
+            models.Index(fields=['user', '-start_time']),
+        ]
 
     def __str__(self):
         return f"{self.name} ({self.start_time.date()})"
@@ -38,6 +41,10 @@ class WorkoutSet(models.Model):
 
     class Meta:
         ordering = ['order']
+        indexes = [
+            models.Index(fields=['weight']),
+            models.Index(fields=['one_rep_max']),
+        ]
 
 # Calculate 1rm for each set
     def save(self, *args, **kwargs):

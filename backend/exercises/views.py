@@ -97,14 +97,7 @@ class ExerciseViewSet(viewsets.ReadOnlyModelViewSet): # ReadOnly
             workout_exercise__workout__user=request.user
         ).select_related('workout_exercise__workout')
         
-        # If no records
-        if not base_qs.exists():
-            return Response({'max_weight': None, 'best_1rm': None})
-
-        # Max weight lifted
         max_weight_set = base_qs.order_by('-weight', '-reps').first()
-
-        # Best calculated 1RM
         best_1rm_set = base_qs.order_by('-one_rep_max').first()
 
         # Helper to format record response
@@ -112,16 +105,14 @@ class ExerciseViewSet(viewsets.ReadOnlyModelViewSet): # ReadOnly
             if not record_set:
                 return None
             
-            record_value = getattr(record_set, value_key)
-            
+            workout = record_set.workout_exercise.workout 
             return {
-                'value': record_value,
                 'weight': record_set.weight,
                 'reps': record_set.reps,
-                'date': record_set.workout_exercise.workout.start_time,
-                'workout_id': record_set.workout_exercise.workout.id
+                'value': getattr(record_set, 'one_rep_max', 0) if record_set == best_1rm_set else record_set.weight,
+                'date': workout.start_time,
+                'workout_id': workout.id
             }
-
         return Response({
             'max_weight': format_record(max_weight_set, value_key='weight'),
             'best_1rm': format_record(best_1rm_set, value_key='one_rep_max')

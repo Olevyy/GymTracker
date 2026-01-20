@@ -1,11 +1,12 @@
 from rest_framework import viewsets, permissions, exceptions
 from .models import Workout, WorkoutSet, WorkoutExercise
-from .serializers import WorkoutSerializer, WorkoutSetSerializer, WorkoutExerciseSerializer
+from .serializers import WorkoutSerializer, WorkoutSetSerializer, WorkoutExerciseSerializer, WorkoutListSerializer
 from django_filters import rest_framework as filters
-from .services import get_weekly_stats, get_volume_workouts_data
+from .services import get_weekly_stats, get_workouts_volume, get_workout_summary
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
+import time
 class WorkoutFilter(filters.FilterSet):
     # date = filters.DateFilter(field_name='start_time', lookup_expr='date')
     # Data range filters
@@ -24,13 +25,24 @@ class WorkoutViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.DjangoFilterBackend]
     filterset_class = WorkoutFilter
 
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return WorkoutListSerializer
+        return WorkoutSerializer
+
     def get_queryset(self):
         return Workout.objects.filter(user=self.request.user)\
             .prefetch_related('exercises__sets', 'exercises__exercise')\
             .order_by('-start_time')
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        workout = serializer.save(user=self.request.user)
+        # Generate summary data, update workout and personal records
+        summary_data = get_workout_summary(workout)
+        
+        return Response(summary_data, status=status.HTTP_201_CREATED)
 
     # Get monthly stats for user
     @action(detail=False, methods=['get'], url_path='weekly-stats')
@@ -38,17 +50,17 @@ class WorkoutViewSet(viewsets.ModelViewSet):
         data = get_weekly_stats(request.user)
         return Response(data)
     
+
     # Get volume chart data
     @action(detail=False, methods=['get'], url_path='volume-chart')
     def volume_chart(self, request):
-
         muscle = request.query_params.get('muscle', None)
-        data = get_volume_workouts_data(
+        data = get_workouts_volume(
             user=request.user,
             muscle=muscle
         )
-        
         return Response(data)
+
 
 
 # Single exercise within a workout
