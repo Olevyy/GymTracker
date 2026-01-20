@@ -1,6 +1,6 @@
 // A simple API client that handles token-based authentication with automatic token refresh.
 import { API_URL } from "@/constants/api";
-import { getAccessToken, refreshAccessToken } from "@/services/authService";
+import { getAccessToken, refreshAccessToken, logoutUser } from "@/services/authService";
 
 
 // A wrapper around fetch that adds authentication headers and handles token refresh
@@ -18,10 +18,16 @@ export async function apiFetch(
     };
 
     // first request
+    const controller1 = new AbortController();
+    const timeoutId1 = setTimeout(() => controller1.abort(), 10000);
+
     let response = await fetch(`${API_URL}${endpoint}`, {
         ...options,
         headers,
+        signal: controller1.signal,
     });
+
+    clearTimeout(timeoutId1);
 
     // If token expired — try to refresh and retry the request
     if (response.status === 401 && retry) {
@@ -39,6 +45,7 @@ export async function apiFetch(
                 headers: retryHeaders,
             });
         } else {
+            await logoutUser();
             throw new Error("Session expired. Please log in again.");
         }
     }
