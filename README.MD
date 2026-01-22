@@ -6,7 +6,7 @@ A full-stack fitness app for tracking workouts, browsing exercises and viewing w
 - **User authentication**: Secure JWT-based login and registration.
 - **Optimized Performance**: Sets are logged locally for zero latency and synced to the backend only upon workout completion.
 - **Persistent Drafts**: Active workouts are saved locally, allowing you to close the app and resume later without data loss.
-- **Workout History**: Detailed logs of past sessions, personal records with charts, muscle Heatmaps and last week summirize.
+- **Workout History**: Detailed logs of past sessions, personal records with charts, muscle Heatmaps and last week summarize.
 - **Exercise Database**: Advanced filtering by muscle group and category.
 - **Templates**: Create reusable workout plans for quick session starts.
 
@@ -25,7 +25,7 @@ GymTracker/
 ├── backend/ (Django REST Framework)
 │   ├── users/ - Authentication and user management
 │   ├── exercises/ - Exercise CRUD, search, filtering, data import
-│   ├── workouts/ - Workout logging, history, stats, heatmaps
+│   ├── workouts/ - Workout logging, history, stats, heatmaps, workoutExercise, workoutExerciseSet
 │   └── templates/ - Template creation, editing, deletion
 ├── mobile/ (React Native with Expo)
 │   ├── app/ - Screens (tabs, auth, flows)

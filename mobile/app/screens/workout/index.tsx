@@ -68,7 +68,7 @@ export default function ActiveWorkoutScreen() {
             {/* LIST */}
             {activeExercises.map((item, index) => (
                 <ActiveExerciseCard 
-                    key={index}
+                    key={item.sets && item.sets[0] ? item.sets[0].id : `${item.exercise.id}-${index}`}
                     item={item}
                     exerciseIndex={index}
                     onUpdateSet={updateSet}

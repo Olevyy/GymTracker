@@ -74,16 +74,18 @@ export async function logoutUser() {
 export async function refreshAccessToken() {
     const refresh = await SecureStore.getItemAsync(REFRESH_KEY);
     if (!refresh) return null;
-
+    const controller1 = new AbortController();
+    const timeoutId1 = setTimeout(() => controller1.abort(), 10000);
     try {
         const res = await fetch(`${API_URL}${ENDPOINTS.REFRESH}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ refresh }),
+            signal: controller1.signal,
         });
-
+        clearTimeout(timeoutId1);
         if (!res.ok) {
-            await clearTokens();
+            await logoutUser();
             return null;
         }
 
@@ -91,6 +93,6 @@ export async function refreshAccessToken() {
         await handleAuthTokens(data);
         return data.access;
     } catch (e) {
-        return null;
+        throw e;
     }
 }

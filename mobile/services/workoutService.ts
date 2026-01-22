@@ -1,6 +1,6 @@
 import { apiFetch } from './apiClient';
 import { ENDPOINTS } from '@/constants/api';
-
+import { Muscle } from '@/types/exercise';
 
 // Data types to send
 export interface WorkoutSetPayload {
@@ -53,6 +53,38 @@ export async function getWorkoutStats(): Promise<WorkoutStats> {
     
     if (!response.ok) {
         throw new Error('Failed to fetch workout stats');
+    }
+
+    return await response.json();
+}
+
+export interface ChartDataPoint {
+    value: number;
+    label: string;
+    date?: string;
+}
+
+export interface VolumeStatsSummary {
+    total_workouts: number;
+    total_volume: number;
+}
+
+export interface VolumeStatsResponse {
+    chart: ChartDataPoint[];
+    summary: VolumeStatsSummary;
+}
+
+export async function getVolumeStats(muscle?: Muscle | null): Promise<VolumeStatsResponse> {
+    let url = `${ENDPOINTS.WORKOUTS}volume-chart/`;
+    
+    if (muscle) {
+        url += `?muscle=${encodeURIComponent(muscle)}`;
+    }
+
+    const response = await apiFetch(url);
+    
+    if (!response.ok) {
+        throw new Error('Failed to fetch volume stats');
     }
 
     return await response.json();

@@ -22,8 +22,8 @@ export default function MenuScreen() {
           style: "destructive", 
           onPress: async () => {
             try {
-              await logoutUser(); // 1. Clear tokens and call API
-              await checkAuth();  // 2. Update Context state
+              await logoutUser();
+              await checkAuth();
               router.replace('/(auth)/login'); 
             } catch (error) {
               Alert.alert("Error", "Failed to log out.");
@@ -75,17 +75,17 @@ export default function MenuScreen() {
             subtitle="Progress, volume, frequency"
             icon="stats-chart-outline" 
             color="#10B981" // Green
-            onPress={() => console.log("Navigate to Stats")} 
+            onPress={() => router.push('/screens/menu/stats')} 
         />
         <MenuOption 
             title="1RM / RPE Calculator" 
             subtitle="Calculate your maxes"
             icon="calculator-outline" 
             color="#F59E0B" // Orange
-            onPress={() => console.log("Navigate to Calculator")} 
+            onPress={() => router.push('/screens/menu/calculator')}
         />
 
-        {/* --- SECTION: ACCOUNT --- */}
+        {/* SECTION: ACCOUNT */}
         <View className="mt-4">
             <Text className="text-gray-500 text-xs font-bold uppercase mb-2 ml-1 tracking-wider">Account</Text>
             

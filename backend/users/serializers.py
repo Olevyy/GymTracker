@@ -3,15 +3,18 @@ from .models import User
 from dj_rest_auth.registration.serializers import RegisterSerializer
 
 # Serializer for the User model
-class UserSerializer(RegisterSerializer):
+class CustomRegisterSerializer(RegisterSerializer):
     
     def validate_email(self, email):
         if User.objects.filter(email=email).exists():
             raise serializers.ValidationError("A user with that email already exists.")
         return email
-    
+
+
+
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User 
-        # Specify the fields to be included in the serialization
-        fields = ['id', 'username', 'email']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'gender', 'body_weight']
 
+        read_only_fields = ['id', 'email', 'username']
