@@ -4,7 +4,7 @@ from datetime import timedelta
 from .models import Workout, WorkoutSet
 from collections import defaultdict
 from django.db.models import Q, Sum, F, Count
-from django.apps import apps
+from .models import Workout, WorkoutSet, WorkoutExercise
 
 def get_heat_intensity(sets_count):
     if sets_count <= 0: return 1 
@@ -106,7 +106,6 @@ def get_weekly_stats(user):
 # Get volume of workouts for user over time (grouped monthly) for generating volume chart
 def get_workouts_volume(user, muscle = None, days = 365):
     """
-    user: User object
     muscle: muscle name to filter by or None for all muscles
     days: number of days in the past to include in the data
     """
@@ -133,24 +132,22 @@ def get_workouts_volume(user, muscle = None, days = 365):
 
     else:
         # Filter sets by muscle
-        sets = WorkoutSet.objects.filter(
-            workout_exercise__workout__user=user,
-            workout_exercise__workout__start_time__date__gte=start_time,
-            workout_exercise__workout__start_time__date__lte=today,
-        ).select_related('workout_exercise__workout')
+        workout_exercise = WorkoutExercise.objects.filter(
+            workout__user = user,
+            workout__start_time__date__gte=start_time,
+            workout__start_time__date__lte=today,
+        ).select_related('workout')
 
-        sets = sets.filter(
-            Q(workout_exercise__exercise__primary_muscles__icontains=muscle) |
-            Q(workout_exercise__exercise__secondary_muscles__icontains=muscle)
+        workout_exercise = workout_exercise.filter(
+            Q(exercise__primary_muscles__icontains=muscle) |
+            Q(exercise__secondary_muscles__icontains=muscle)
         )
 
-        for one_set in sets:
-            workout_date = one_set.workout_exercise.workout.start_time.date() # Date of the workout
-            first_of_month = workout_date.replace(day=1) # Get first day of that month
-            vol = float(one_set.weight) * one_set.reps
-            monthly_volume[first_of_month] += vol
-            unique_workouts.add(one_set.workout_exercise.workout.id)
-    
+        for exercise in workout_exercise:
+            date = exercise.workout.start_time.date()
+            first_of_month = date.replace(day=1)
+            monthly_volume[first_of_month] += exercise.session_volume
+            unique_workouts.add(exercise.workout.id)
     chart_data = []
 
 
@@ -175,76 +172,60 @@ def get_workouts_volume(user, muscle = None, days = 365):
         }
     }
 
-
+# Calculate 1rm based on weight and reps using Epley formula
 def calculate_1rm(weight, reps):
     if reps == 0: return 0
     if reps == 1: return weight
     return weight * (1 + (reps / 30))
 
 # Generate workout summary including total volume and new personal records
-def get_workout_summary(workout):
-    PersonalRecord = apps.get_model('stats', 'Personal_Record')
-    user = workout.user
+# Supposed to be run only after workout is completed or edited
+def calculate_workout_summary(workout):
+
     # Get all sets in the workout
-    sets = WorkoutSet.objects.filter(
-        workout_exercise__workout=workout
-    ).select_related('workout_exercise__exercise', 'workout_exercise')
+    exercises = WorkoutExercise.objects.filter(
+        workout=workout
+    ).select_related('exercise').prefetch_related('sets')
     total_volume = 0.0
     
-    # { exercise_id: { 'max_1rm': float, 'name': str } }
-    session_bests = {}
-
-    for one_set in sets:
-        weight = float(one_set.weight)
-        reps = one_set.reps
-        total_volume += weight * reps
-
-        # Check if this set is a personal best for the exercise in this session
-        current_1rm = getattr(one_set, 'one_rep_max', calculate_1rm(weight, reps))
-        ex_id = one_set.workout_exercise.exercise.id
-        
-        if ex_id not in session_bests:
-            session_bests[ex_id] = {
-                'max_1rm': 0.0, 
-                'name': one_set.workout_exercise.exercise.name,
-                'workout_exercise': one_set.workout_exercise
-
-            }
-        
-        # If set's 1RM is better than current best for this exercise in the session, update it
-        if current_1rm > session_bests[ex_id]['max_1rm']:
-            session_bests[ex_id]['max_1rm'] = current_1rm
-            
-
-    # Save total volume to workout
-    workout.total_volume = round(total_volume, 1)
-    workout.save(update_fields=['total_volume'])
-
     new_records = []
 
-    for ex_id, best_data in session_bests.items():
-        achieved_1rm = best_data['max_1rm']
-        workout_exercise_instance = best_data['workout_exercise']
-        # Check history for existing PR
-        existing_pr = PersonalRecord.objects.filter(
-            workout_exercise__workout__user=user,
-            workout_exercise__exercise_id=ex_id
-        ).order_by('-one_rep_max').first()
+    for one_exercise in exercises:
+        session_volume = 0.0
+        session_1rm = 0.0
+        for one_set in one_exercise.sets.all():
+            weight = float(one_set.weight)
+            reps = one_set.reps
+            session_volume += weight * reps
+            set_1rm = calculate_1rm(weight, reps)
+            if set_1rm > session_1rm:
+                session_1rm = set_1rm
+        
+        total_volume += session_volume
+        one_exercise.session_volume = round(session_volume, 1)
+        one_exercise.session_1rm = round(session_1rm, 1)
+        one_exercise.save(update_fields=['session_volume', 'session_1rm'])
 
-        old_1rm = existing_pr.one_rep_max if existing_pr else 0.0
+        global_best = (
+            WorkoutExercise.objects.filter(
+                workout__user=workout.user,
+                exercise=one_exercise.exercise)
+                .exclude(id=one_exercise.id)  # Exclude current exercise
+                .order_by('-session_1rm')
+                .first()
+        )
+        best_global = global_best.session_1rm if global_best else 0.0
 
-        if achieved_1rm > old_1rm:
-            PersonalRecord.objects.create(
-                workout_exercise=workout_exercise_instance,
-                one_rep_max=achieved_1rm
-            )
-            
+        if session_1rm > best_global:
             new_records.append({
-                "exercise_name": best_data['name'],
-                "old_1rm": round(old_1rm, 1),
-                "new_1rm": round(achieved_1rm, 1),
-                "is_new": old_1rm == 0
+                "exercise_id": one_exercise.exercise.id,
+                "exercise_name": one_exercise.exercise.name,
+                "old_1rm": round(global_best.session_1rm, 1) if global_best else 0,
+                "new_1rm": round(session_1rm, 1)
             })
+    if workout.total_volume != total_volume:
+        workout.total_volume = round(total_volume, 1)
+        workout.save(update_fields=['total_volume'])
 
     return {
         "id": workout.id,

@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions, exceptions
 from .models import Workout, WorkoutSet, WorkoutExercise
 from .serializers import WorkoutSerializer, WorkoutSetSerializer, WorkoutExerciseSerializer, WorkoutListSerializer
 from django_filters import rest_framework as filters
-from .services import get_weekly_stats, get_workouts_volume, get_workout_summary
+from .services import get_weekly_stats, get_workouts_volume, calculate_workout_summary
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -39,10 +39,17 @@ class WorkoutViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         workout = serializer.save(user=self.request.user)
-        # Generate summary data, update workout and personal records
-        summary_data = get_workout_summary(workout)
+        # Generate summary data, update workout total volume and check for new personal records
+        summary_data = calculate_workout_summary(workout)
         
         return Response(summary_data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        workout = self.get_object()
+        # Recalculate summary data after update
+        summary_data = calculate_workout_summary(workout)
+        return Response(summary_data)
 
     # Get monthly stats for user
     @action(detail=False, methods=['get'], url_path='weekly-stats')
@@ -74,6 +81,18 @@ class WorkoutExerciseViewSet(viewsets.ModelViewSet):
         # User has access only to their workout exercises
         return WorkoutExercise.objects.filter(workout__user=self.request.user)
 
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        calculate_workout_summary(instance.workout)
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        calculate_workout_summary(instance.workout)
+
+    def perform_destroy(self, instance):
+        workout = instance.workout
+        instance.delete()
+        calculate_workout_summary(workout)
 
 # Single set within an exercise
 class WorkoutSetViewSet(viewsets.ModelViewSet):
@@ -84,3 +103,16 @@ class WorkoutSetViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # User has access only to their workout sets
         return WorkoutSet.objects.filter(workout_exercise__workout__user=self.request.user)
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        calculate_workout_summary(instance.workout_exercise.workout)
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        calculate_workout_summary(instance.workout_exercise.workout)
+
+    def perform_destroy(self, instance):
+        workout = instance.workout_exercise.workout
+        instance.delete()
+        calculate_workout_summary(workout)

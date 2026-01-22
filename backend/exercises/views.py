@@ -8,6 +8,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from .models import Exercise
 from .serializers import ExerciseSerializer
+from workouts.serializers import WorkoutSetSerializer
 
 # Pagination 20 items per page
 class StandardResultsSetPagination(PageNumberPagination):
@@ -57,14 +58,13 @@ class ExerciseViewSet(viewsets.ReadOnlyModelViewSet): # ReadOnly
         URL: /api/exercises/{id}/history/
         """
         from workouts.models import WorkoutExercise
-        from workouts.serializers import WorkoutSetSerializer
         
         exercise = self.get_object()
 
         history_items = WorkoutExercise.objects.filter(
             exercise=exercise, 
             workout__user=request.user
-        ).select_related('workout').prefetch_related('sets').order_by('-workout__start_time')[:10]
+        ).select_related('workout').prefetch_related('sets').order_by('-workout__start_time')
         
         data = []
         for item in history_items:
@@ -72,9 +72,7 @@ class ExerciseViewSet(viewsets.ReadOnlyModelViewSet): # ReadOnly
             serialized_sets = WorkoutSetSerializer(sets, many=True).data
             
             session_1rm = 0
-            if sets:
-                # Highest 1rm for each session exercise
-                session_1rm = max([s.one_rep_max for s in sets])
+            session_1rm = item.session_1rm
 
             data.append({
                 'workout_id': item.workout.id,
@@ -88,32 +86,46 @@ class ExerciseViewSet(viewsets.ReadOnlyModelViewSet): # ReadOnly
 
     @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
     def records(self, request, pk=None):
-        from workouts.models import WorkoutSet
+        # Retrieves max weight and best 1RM for this exercise for the user
+        from workouts.models import WorkoutSet, WorkoutExercise
 
-        #Retrieves max weight and best 1RM for this exercise for the user
 
-        base_qs = WorkoutSet.objects.filter(
+        max_weight_set = WorkoutSet.objects.filter(
             workout_exercise__exercise_id=pk,
             workout_exercise__workout__user=request.user
-        ).select_related('workout_exercise__workout')
-        
-        max_weight_set = base_qs.order_by('-weight', '-reps').first()
-        best_1rm_set = base_qs.order_by('-one_rep_max').first()
+        ).select_related('workout_exercise__workout').order_by('-weight').first()
 
-        # Helper to format record response
-        def format_record(record_set, value_key):
-            if not record_set:
-                return None
-            
-            workout = record_set.workout_exercise.workout 
-            return {
-                'weight': record_set.weight,
-                'reps': record_set.reps,
-                'value': getattr(record_set, 'one_rep_max', 0) if record_set == best_1rm_set else record_set.weight,
-                'date': workout.start_time,
-                'workout_id': workout.id
-            }
+        best_1rm_exercise = WorkoutExercise.objects.filter(
+            exercise_id=pk,
+            workout__user=request.user
+        ).select_related('workout').order_by('-session_1rm').first()
+
+        if max_weight_set is None:
+            reps = 0
+            date = None
+            weight = 0
+
+        else:
+            reps = max_weight_set.reps
+            date = max_weight_set.workout_exercise.workout.start_time
+            weight = float(max_weight_set.weight)
+
+
+        if best_1rm_exercise is None:
+            best_1rm_value = 0
+            best_1rm_date = None
+        else:
+            best_1rm_value = best_1rm_exercise.session_1rm
+            best_1rm_date = best_1rm_exercise.workout.start_time
+
         return Response({
-            'max_weight': format_record(max_weight_set, value_key='weight'),
-            'best_1rm': format_record(best_1rm_set, value_key='one_rep_max')
+            'max_weight': {
+                'weight': weight,
+                'reps': reps,
+                'date': date    
+            },
+            'best_1rm': {
+                'value': best_1rm_value,
+                'date': best_1rm_date
+            }
         })

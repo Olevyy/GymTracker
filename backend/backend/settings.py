@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'users',
     'exercises',
     'workouts',
-    'stats',
     'templates',
     'django.contrib.sites',
     'rest_framework',
@@ -226,7 +225,6 @@ REST_AUTH = {
     # Custom serializer for user registration
     'USER_DETAILS_SERIALIZER': 'users.serializers.UserSerializer',
 }
-
 
 REST_AUTH_REGISTER_SERIALIZERS = {
     'REGISTER_SERIALIZER': 'users.serializers.CustomRegisterSerializer',

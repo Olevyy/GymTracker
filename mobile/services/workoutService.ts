@@ -75,7 +75,6 @@ export interface VolumeStatsResponse {
 }
 
 export async function getVolumeStats(muscle?: Muscle | null): Promise<VolumeStatsResponse> {
-    // Budujemy URL z parametrem query
     let url = `${ENDPOINTS.WORKOUTS}volume-chart/`;
     
     if (muscle) {

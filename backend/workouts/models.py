@@ -24,7 +24,8 @@ class WorkoutExercise(models.Model):
     workout = models.ForeignKey(Workout, related_name='exercises', on_delete=models.CASCADE) # Exercise belongs to a workout
     exercise = models.ForeignKey(Exercise, on_delete=models.PROTECT) # If we somehow delete exercise, keep workout history
     order = models.PositiveIntegerField(default=0) # order within the workout
-
+    session_1rm = models.FloatField(default=0.0)
+    session_volume = models.FloatField(default=0.0)
     class Meta:
         ordering = ['order']
 
@@ -37,25 +38,9 @@ class WorkoutSet(models.Model):
     weight = models.DecimalField(max_digits=6, decimal_places=2, default=0) # Weight of the set
     reps = models.PositiveIntegerField()
     order = models.PositiveIntegerField(default=0)
-    one_rep_max = models.FloatField(default = 0, editable = False) # 1 RM storaged in each set
 
     class Meta:
         ordering = ['order']
         indexes = [
             models.Index(fields=['weight']),
-            models.Index(fields=['one_rep_max']),
         ]
-
-# Calculate 1rm for each set
-    def save(self, *args, **kwargs):
-        w = float(self.weight)
-        r = self.reps
-
-        if r == 0:
-            self.one_rep_max = 0
-        elif r == 1:
-            self.one_rep_max = w
-        else:
-            self.one_rep_max = round(w * (1 + r / 30.0), 2)
-        # Persist changes to the database
-        super().save(*args, **kwargs)

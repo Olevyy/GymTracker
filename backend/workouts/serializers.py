@@ -1,14 +1,12 @@
 from rest_framework import serializers
 from .models import Workout, WorkoutExercise, WorkoutSet
 from exercises.serializers import ExerciseListSerializer 
-from stats.serializers import PersonalRecordSerializer
 class WorkoutSetSerializer(serializers.ModelSerializer):
     # Field calculated (read-only)
-    one_rep_max = serializers.FloatField(read_only=True)
 
     class Meta:
         model = WorkoutSet
-        fields = ['id', 'weight', 'reps', 'order', 'one_rep_max']
+        fields = ['id', 'weight', 'reps', 'order']
 
 class WorkoutExerciseSerializer(serializers.ModelSerializer):
     sets = WorkoutSetSerializer(many=True)
@@ -16,10 +14,11 @@ class WorkoutExerciseSerializer(serializers.ModelSerializer):
     exercise_id = serializers.IntegerField(write_only=True)
     # Exercise details to read (name, category, thumbnail)
     exercise_details = ExerciseListSerializer(source='exercise', read_only=True)
-    personal_record = PersonalRecordSerializer(source='is_personal_record', read_only=True, allow_null=True)
+    session_1rm = serializers.FloatField(read_only=True)
+    session_volume = serializers.FloatField(read_only=True)
     class Meta:
         model = WorkoutExercise
-        fields = ['id', 'exercise_id', 'exercise_details', 'order', 'sets', 'personal_record']
+        fields = ['id', 'exercise_id', 'exercise_details', 'order', 'sets', 'session_1rm', 'session_volume']
 
 
 class WorkoutListSerializer(serializers.ModelSerializer):
@@ -29,12 +28,10 @@ class WorkoutListSerializer(serializers.ModelSerializer):
 
 class WorkoutSerializer(serializers.ModelSerializer):
     exercises = WorkoutExerciseSerializer(many=True)
-    broken_records = PersonalRecordSerializer(source='records_set', many=True, read_only=True)
     
     class Meta:
         model = Workout
-        fields = ['id', 'name', 'start_time', 'status', 'notes','total_volume','exercises', 'broken_records']
-
+        fields = ['id', 'name', 'start_time', 'status', 'notes','total_volume','exercises']
     def create(self, validated_data):
         # Create overwriting to handle nested creation
         exercises_data = validated_data.pop('exercises')

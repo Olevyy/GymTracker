@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from workouts.models import Workout
-from workouts.services import get_workout_summary
+from workouts.services import calculate_workout_summary
 from django.apps import apps
 
 class Command(BaseCommand):
@@ -8,11 +8,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
-        PersonalRecord = apps.get_model('stats', 'Personal_Record')
-        deleted_count, _ = PersonalRecord.objects.all().delete()
 
-        self.stdout.write(f"Deleted {deleted_count} personal records.")
-        
         # Get all workouts ordered by date
         workouts = Workout.objects.all().order_by('start_time')
         count = workouts.count()
@@ -23,6 +19,6 @@ class Command(BaseCommand):
         self.stdout.write(f"Found {count} workouts. Starting recalculation...")
 
         for workout in workouts:
-            get_workout_summary(workout)
+            calculate_workout_summary(workout)
             
         self.stdout.write(self.style.SUCCESS(f"Done! Recalculated {count} workouts"))
