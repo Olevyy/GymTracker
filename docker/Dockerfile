@@ -20,5 +20,5 @@ COPY backend /app
 
 RUN python manage.py collectstatic --noinput
 
-# Gunicorn will listen on the port defined by the PORT environment variable
-CMD exec gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 0 backend.wsgi:application
+# Run migrations and then start Gunicorn
+CMD python manage.py migrate && exec gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 0 backend.wsgi:application
