@@ -1,6 +1,7 @@
 // Workout history
 import { useState, useEffect, useCallback } from 'react';
 import { getWorkoutsHistory, WorkoutHistoryItem } from '@/services/historyService';
+import { useFocusEffect } from 'expo-router';
 
 export function useHistory() {
     const [workouts, setWorkouts] = useState<WorkoutHistoryItem[]>([]);
@@ -31,9 +32,11 @@ export function useHistory() {
         }
     }, [startDate, endDate]);
 
-    useEffect(() => {
-        fetchHistory();
-    }, [fetchHistory]);
+    useFocusEffect(
+        useCallback(() => {
+            fetchHistory();
+        }, [fetchHistory])
+    );
 
     return { 
         workouts, 

@@ -7,9 +7,10 @@ import { Exercise, Category } from '@/types/exercise';
 interface Props {
     item: Exercise;
     onPress: (item: Exercise) => void;
+    onViewDetails?: (item: Exercise) => void;
 }
 
-export default function ExerciseRow({ item, onPress }: Props) {
+export default function ExerciseRow({ item, onPress, onViewDetails }: Props) {
     const [imageError, setImageError] = useState(false);
     
     const imageUrl = item.image_urls && item.image_urls.length > 0 ? item.image_urls[0] : null;
@@ -40,6 +41,7 @@ export default function ExerciseRow({ item, onPress }: Props) {
         <TouchableOpacity 
             className="flex-row bg-gray-900 mb-3 rounded-xl overflow-hidden border border-gray-800 h-32"
             onPress={() => onPress(item)}
+            onLongPress={onViewDetails ? () => onViewDetails(item) : undefined}
             activeOpacity={0.7}
         >
             {/* Image */}

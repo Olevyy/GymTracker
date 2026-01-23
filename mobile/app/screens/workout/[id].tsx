@@ -1,11 +1,11 @@
-// Detailed Workout View - deletes modify sets
+// Detailed Workout View as history - deletes, modify sets, exercises
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useWorkoutDetail } from '@/hooks/useWorkoutDetail'; 
-
+import { calculateOneRepMax } from '@/utils/calculations';
 export default function WorkoutDetailScreen() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
@@ -14,7 +14,9 @@ export default function WorkoutDetailScreen() {
         workout, loading,
         editingSet, editWeight, setEditWeight, editReps, setEditReps, isSaving,
         openEditModal, closeEditModal, saveSetChanges,
-        handleDeleteSet, handleDeleteExercise, handleDeleteWorkout
+        handleDeleteSet, handleDeleteExercise, handleDeleteWorkout,
+        editingWorkout, editName, setEditName, editNotes, setEditNotes,
+        openEditWorkoutModal, closeEditWorkoutModal, saveWorkoutChanges
     } = useWorkoutDetail(id as string);
 
     if (loading || !workout) {
@@ -43,12 +45,20 @@ export default function WorkoutDetailScreen() {
                     </Text>
                 </View>
             </View>
-            <TouchableOpacity 
-                onPress={handleDeleteWorkout}
-                className="p-2 bg-red-900/20 rounded-lg border border-red-900/50"
-            >
-                <Ionicons name="trash" size={20} color="#EF4444" />
-            </TouchableOpacity>
+            <View className="flex-row">
+                <TouchableOpacity 
+                    onPress={openEditWorkoutModal}
+                    className="p-2 bg-blue-900/20 rounded-lg border border-blue-900/50 mr-2"
+                >
+                    <Ionicons name="pencil" size={20} color="#3B82F6" />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    onPress={handleDeleteWorkout}
+                    className="p-2 bg-red-900/20 rounded-lg border border-red-900/50"
+                >
+                    <Ionicons name="trash" size={20} color="#EF4444" />
+                </TouchableOpacity>
+            </View>
         </View>
 
         <ScrollView className="flex-1 p-4">
@@ -122,7 +132,7 @@ export default function WorkoutDetailScreen() {
                         {set.reps}
                     </Text>
                     <Text className="text-gray-500 flex-1 text-center text-sm mt-0.5">
-                        {set.one_rep_max}
+                        {calculateOneRepMax(set.weight, set.reps.toString())}
                     </Text>
                 </TouchableOpacity>
             ))}
@@ -189,6 +199,66 @@ export default function WorkoutDetailScreen() {
         <TouchableOpacity onPress={closeEditModal} className="mt-4 py-2">
             <Text className="text-gray-500 text-center">Cancel</Text>
         </TouchableOpacity>
+        </View>
+        </View>
+        </Modal>
+
+        {/* Edit Workout Modal */}
+        <Modal
+            visible={editingWorkout}
+            transparent
+            animationType="fade"
+            onRequestClose={closeEditWorkoutModal}
+        >
+        <View className="flex-1 bg-black/80 justify-center items-center p-4">
+        <View className="bg-gray-900 w-full max-w-sm p-6 rounded-2xl border border-gray-700">
+        <Text className="text-white text-xl font-bold mb-4 text-center">Edit Workout</Text>
+
+        <View className="mb-4">
+            <Text className="text-gray-400 text-xs mb-1 ml-1">Name</Text>
+            <TextInput 
+                className="bg-black text-white p-4 rounded-xl text-base border border-gray-700"
+                value={editName}
+                onChangeText={setEditName}
+                placeholder="Workout name"
+                placeholderTextColor="#6B7280"
+            />
+        </View>
+
+        <View className="mb-6">
+            <Text className="text-gray-400 text-xs mb-1 ml-1">Notes</Text>
+            <TextInput 
+                className="bg-black text-white p-4 rounded-xl text-base border border-gray-700"
+                value={editNotes}
+                onChangeText={setEditNotes}
+                placeholder="Workout notes"
+                placeholderTextColor="#6B7280"
+                multiline
+                numberOfLines={3}
+            />
+        </View>
+
+        <View className="flex-row justify-between">
+            <TouchableOpacity 
+                onPress={closeEditWorkoutModal}
+                className="bg-gray-700 p-4 rounded-xl flex-1 mr-2 items-center"
+            >
+                <Text className="text-gray-300 font-bold">Cancel</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+                onPress={saveWorkoutChanges}
+                disabled={isSaving}
+                className="bg-blue-600 p-4 rounded-xl flex-1 ml-2 items-center"
+            >
+                {isSaving ? (
+                    <ActivityIndicator color="white" />
+                ) : (
+                    <Text className="text-white font-bold">Save</Text>
+                )}
+            </TouchableOpacity>
+        </View>
+
         </View>
         </View>
         </Modal>

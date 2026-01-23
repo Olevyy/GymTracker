@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-
+import { WorkoutSummaryResponse } from '@/services/workoutService';
 import { createWorkout, CreateWorkoutPayload } from '@/services/workoutService';
 import { Exercise } from '@/types/exercise';
 import { ActiveExercise } from '@/components/workout/workoutExercise'; 
@@ -31,6 +31,9 @@ interface WorkoutContextType {
     finishWorkout: () => Promise<void>;
     startWorkoutFromTemplate: (template: WorkoutTemplate) => void;
     resetWorkout: () => void; 
+
+    lastWorkoutSummary: WorkoutSummaryResponse | null;
+    clearSummary: () => void;
 }
 
 export const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
@@ -194,6 +197,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         setActiveExercises(mappedExercises);
     }, []);
 
+    const [lastWorkoutSummary, setLastWorkoutSummary] = useState<WorkoutSummaryResponse | null>(null);
+
     const finishWorkout = useCallback(async () => {
         if (activeExercises.length === 0) {
             Alert.alert("Empty Workout", "Add at least one exercise.");
@@ -227,13 +232,14 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
             }
 
             await createWorkout(payload);
-            
+            const summaryData = await createWorkout(payload);
+            setLastWorkoutSummary(summaryData);
             Alert.alert("Success", "Workout saved!", [
                 { 
                     text: "OK", 
                     onPress: () => {
                         resetWorkout(); 
-                        router.replace('/(tabs)/my-workouts');
+                        router.replace('/screens/workout/summary');
                     } 
                 }
             ]);
@@ -244,6 +250,10 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
             setIsSubmitting(false);
         }
     }, [activeExercises, workoutName, notes, router]);
+
+    const clearSummary = useCallback(() => {
+        setLastWorkoutSummary(null);
+    }, []);
 
     const value = useMemo(() => ({
         workoutName,
@@ -265,7 +275,9 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         finishWorkout,
         startWorkoutFromTemplate,
         startEmptyWorkout,
-        resetWorkout
+        resetWorkout,
+        lastWorkoutSummary,
+        clearSummary
     }), [
         workoutName,
         setWorkoutName,
@@ -287,6 +299,7 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         startWorkoutFromTemplate,
         startEmptyWorkout,
         resetWorkout
+        
     ]);
 
     return (

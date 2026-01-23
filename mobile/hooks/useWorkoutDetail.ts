@@ -7,6 +7,7 @@ import {
     deleteWorkoutSet, 
     deleteWorkoutExercise, 
     deleteWorkout,
+    updateWorkout,
     WorkoutDetail, 
     HistorySet 
 } from '@/services/historyService';
@@ -23,6 +24,11 @@ export function useWorkoutDetail(workoutId: string | undefined) {
     const [editWeight, setEditWeight] = useState('');
     const [editReps, setEditReps] = useState('');
     const [isSaving, setIsSaving] = useState(false);
+
+    // Edit workout state
+    const [editingWorkout, setEditingWorkout] = useState(false);
+    const [editName, setEditName] = useState('');
+    const [editNotes, setEditNotes] = useState('');
 
     // -Fetching data
     const fetchDetails = useCallback(async () => {
@@ -131,6 +137,37 @@ export function useWorkoutDetail(workoutId: string | undefined) {
         );
     };
 
+    // Workout edit modal
+    const openEditWorkoutModal = () => {
+        if (!workout) return;
+        setEditingWorkout(true);
+        setEditName(workout.name);
+        setEditNotes(workout.notes || '');
+    };
+
+    const closeEditWorkoutModal = () => {
+        setEditingWorkout(false);
+        setEditName('');
+        setEditNotes('');
+    };
+
+    const saveWorkoutChanges = async () => {
+        if (!workout) return;
+        setIsSaving(true);
+        try {
+            await updateWorkout(workout.id, {
+                name: editName,
+                notes: editNotes
+            });
+            closeEditWorkoutModal();
+            fetchDetails();
+        } catch (error) {
+            Alert.alert("Error", "Failed to update workout");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     return {
         // Data
         workout,
@@ -140,6 +177,10 @@ export function useWorkoutDetail(workoutId: string | undefined) {
         editWeight, setEditWeight,
         editReps, setEditReps,
         isSaving,
+        // Edit Workout State
+        editingWorkout,
+        editName, setEditName,
+        editNotes, setEditNotes,
         // Actions
         refresh: fetchDetails,
         openEditModal,
@@ -147,6 +188,9 @@ export function useWorkoutDetail(workoutId: string | undefined) {
         saveSetChanges,
         handleDeleteSet,
         handleDeleteExercise,
-        handleDeleteWorkout
+        handleDeleteWorkout,
+        openEditWorkoutModal,
+        closeEditWorkoutModal,
+        saveWorkoutChanges
     };
 }

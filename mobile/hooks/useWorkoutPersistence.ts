@@ -1,4 +1,4 @@
-// Load and save workout using async storage
+// Communication with AsyncStorage to persist workout state across app restarts
 import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActiveExercise } from '@/components/workout/workoutExercise';

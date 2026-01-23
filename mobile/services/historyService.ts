@@ -15,7 +15,6 @@ export interface HistorySet {
     weight: string; 
     reps: number;
     order: number;
-    one_rep_max: number;
 }
 
 export interface HistoryExercise {
@@ -33,7 +32,6 @@ export interface WorkoutDetail {
     notes: string;
     exercises: HistoryExercise[];
 }
-
 
 export async function getWorkoutsHistory(fromDate: string, toDate: string): Promise<WorkoutHistoryItem[]> {
     const params = new URLSearchParams();
@@ -60,6 +58,16 @@ export async function getWorkoutDetails(id: string): Promise<WorkoutDetail> {
 
     const response = await apiFetch(`${ENDPOINTS.WORKOUTS}${id}/`);
     if (!response.ok) throw new Error('Failed to fetch workout details');
+    return await response.json();
+}
+
+// Update workout name and notes
+export async function updateWorkout(workoutId: number, data: { name?: string, notes?: string }) {
+    const response = await apiFetch(`${ENDPOINTS.WORKOUTS}${workoutId}/`, {
+        method: 'PATCH',
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error('Failed to update workout');
     return await response.json();
 }
 

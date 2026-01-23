@@ -7,9 +7,10 @@ import { Exercise, Muscle, Category, Level } from '@/types/exercise';
 
 interface Props {
     onItemPress: (exercise: Exercise) => void;
+    onViewDetails?: (exercise: Exercise) => void;
 }
 
-export default function ExerciseSelector({ onItemPress }: Props) {
+export default function ExerciseSelector({ onItemPress, onViewDetails }: Props) {
   const { 
     exercises, loading, 
     searchQuery, setSearchQuery, 
@@ -98,7 +99,7 @@ export default function ExerciseSelector({ onItemPress }: Props) {
         data={exercises}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-            <ExerciseRow item={item} onPress={onItemPress} />
+            <ExerciseRow item={item} onPress={onItemPress} onViewDetails={onViewDetails} />
         )}
         contentContainerStyle={{ padding: 16, paddingTop: 4 }}
         onEndReached={loadMore}
