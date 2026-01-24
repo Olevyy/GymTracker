@@ -201,15 +201,16 @@ ACCOUNT_UNIQUE_EMAIL = True
 
 
 # which fields are required during signup
-ACCOUNT_SIGNUP_FIELDS = [
-    "username*", 
-    "email*", 
-    "password1*", 
-    "password2*", 
-]
+ACCOUNT_SIGNUP_FIELDS = {
+    "email": {
+        "required": True,
+    },
+    "username": {
+        "required": True,
+    },
+}
 
 # login with username only
-ACCOUNT_LOGIN_METHODS = {'username'}
 ACCOUNT_EMAIL_VERIFICATION = 'optional' 
 
 

@@ -231,7 +231,6 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
                 return;
             }
 
-            await createWorkout(payload);
             const summaryData = await createWorkout(payload);
             setLastWorkoutSummary(summaryData);
             customAlert("Success", "Workout saved!", [
