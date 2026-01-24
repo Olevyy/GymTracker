@@ -1,7 +1,8 @@
 // form to create/edit workout template routines
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { customAlert } from '@/components/main/CustomAlert';
 import ExerciseSelector from '@/components/exercises/ExerciseSelector';
 import { Exercise } from '@/types/exercise';
 
@@ -52,11 +53,11 @@ export default function TemplateForm({
 
     const handleSubmit = async () => {
         if (!name.trim()) {
-            Alert.alert("Missing Info", "Please enter a routine name.");
+            customAlert("Missing Info", "Please enter a routine name.");
             return;
         }
         if (items.length === 0) {
-            Alert.alert("Empty Routine", "Please add at least one exercise.");
+            customAlert("Empty Routine", "Please add at least one exercise.");
             return;
         }
 

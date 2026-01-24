@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import {Image} from 'react-native';
+import { customAlert } from '@/components/main/CustomAlert';
 import { loginUser } from '@/services/authService';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -17,7 +18,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!username || !password) {
-      Alert.alert('Error', 'Please enter both username and password.');
+      customAlert('Error', 'Please enter both username and password.');
       return;
     }
 
@@ -29,7 +30,7 @@ export default function LoginScreen() {
       router.replace('/(tabs)'); 
       
     } catch (error: any) {
-      Alert.alert('Login error', 'Check your credentials and try again.');
+      customAlert('Login error', 'Check your credentials and try again.');
     } finally {
       setIsLoading(false);
     }

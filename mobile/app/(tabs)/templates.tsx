@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, Alert, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { customAlert } from '@/components/main/CustomAlert';
 
 import { useTemplates } from '@/hooks/useTemplate';
 import { WorkoutTemplate } from '@/services/templateService';
@@ -19,7 +20,7 @@ export default function RoutinesScreen() {
 
 
   const handleDelete = (id: number) => {
-      Alert.alert(
+      customAlert(
           "Delete Routine", 
           "Are you sure you want to delete this routine? This cannot be undone.", 
           [

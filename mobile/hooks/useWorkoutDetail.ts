@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Alert } from 'react-native';
+import { customAlert } from '@/components/main/CustomAlert';
 import { useRouter } from 'expo-router';
 import { 
     getWorkoutDetails, 
@@ -7,6 +7,7 @@ import {
     deleteWorkoutSet, 
     deleteWorkoutExercise, 
     deleteWorkout,
+    updateWorkout,
     WorkoutDetail, 
     HistorySet 
 } from '@/services/historyService';
@@ -24,6 +25,11 @@ export function useWorkoutDetail(workoutId: string | undefined) {
     const [editReps, setEditReps] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
+    // Edit workout state
+    const [editingWorkout, setEditingWorkout] = useState(false);
+    const [editName, setEditName] = useState('');
+    const [editNotes, setEditNotes] = useState('');
+
     // -Fetching data
     const fetchDetails = useCallback(async () => {
         if (!workoutId) return;
@@ -32,7 +38,7 @@ export function useWorkoutDetail(workoutId: string | undefined) {
             const data = await getWorkoutDetails(workoutId);
             setWorkout(data);
         } catch (error) {
-            Alert.alert("Error", "Could not load workout details");
+            customAlert("Error", "Could not load workout details");
             router.back();
         } finally {
             setLoading(false);
@@ -68,7 +74,7 @@ export function useWorkoutDetail(workoutId: string | undefined) {
             closeEditModal();
             fetchDetails();
         } catch (error) {
-            Alert.alert("Error", "Failed to update set");
+            customAlert("Error", "Failed to update set");
         } finally {
             setIsSaving(false);
         }
@@ -76,7 +82,7 @@ export function useWorkoutDetail(workoutId: string | undefined) {
 
     const handleDeleteSet = async () => {
         if (!editingSet) return;
-        Alert.alert("Delete Set", "Are you sure?", [
+        customAlert("Delete Set", "Are you sure?", [
             { text: "Cancel", style: "cancel" },
             { 
                 text: "Delete", 
@@ -86,14 +92,14 @@ export function useWorkoutDetail(workoutId: string | undefined) {
                         await deleteWorkoutSet(editingSet.id);
                         closeEditModal();
                         fetchDetails();
-                    } catch(e) { Alert.alert("Error", "Failed to delete set"); }
+                    } catch(e) { customAlert("Error", "Failed to delete set"); }
                 } 
             }
         ]);
     };
 
     const handleDeleteExercise = (exerciseId: number) => {
-        Alert.alert("Remove Exercise", "This will remove the exercise and all its sets.", [
+        customAlert("Remove Exercise", "This will remove the exercise and all its sets.", [
             { text: "Cancel", style: "cancel" },
             { 
                 text: "Remove", 
@@ -102,14 +108,14 @@ export function useWorkoutDetail(workoutId: string | undefined) {
                     try {
                         await deleteWorkoutExercise(exerciseId);
                         fetchDetails();
-                    } catch(e) { Alert.alert("Error", "Failed to remove exercise"); }
+                    } catch(e) { customAlert("Error", "Failed to remove exercise"); }
                 } 
             }
         ]);
     };
 
     const handleDeleteWorkout = () => {
-        Alert.alert(
+        customAlert(
             "Delete Workout",
             "Are you sure you want to delete this entire workout history?",
             [
@@ -123,12 +129,43 @@ export function useWorkoutDetail(workoutId: string | undefined) {
                             await deleteWorkout(workout.id);
                             router.back(); 
                         } catch (e) {
-                            Alert.alert("Error", "Failed to delete workout");
+                            customAlert("Error", "Failed to delete workout");
                         }
                     } 
                 }
             ]
         );
+    };
+
+    // Workout edit modal
+    const openEditWorkoutModal = () => {
+        if (!workout) return;
+        setEditingWorkout(true);
+        setEditName(workout.name);
+        setEditNotes(workout.notes || '');
+    };
+
+    const closeEditWorkoutModal = () => {
+        setEditingWorkout(false);
+        setEditName('');
+        setEditNotes('');
+    };
+
+    const saveWorkoutChanges = async () => {
+        if (!workout) return;
+        setIsSaving(true);
+        try {
+            await updateWorkout(workout.id, {
+                name: editName,
+                notes: editNotes
+            });
+            closeEditWorkoutModal();
+            fetchDetails();
+        } catch (error) {
+            customAlert("Error", "Failed to update workout");
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return {
@@ -140,6 +177,10 @@ export function useWorkoutDetail(workoutId: string | undefined) {
         editWeight, setEditWeight,
         editReps, setEditReps,
         isSaving,
+        // Edit Workout State
+        editingWorkout,
+        editName, setEditName,
+        editNotes, setEditNotes,
         // Actions
         refresh: fetchDetails,
         openEditModal,
@@ -147,6 +188,9 @@ export function useWorkoutDetail(workoutId: string | undefined) {
         saveSetChanges,
         handleDeleteSet,
         handleDeleteExercise,
-        handleDeleteWorkout
+        handleDeleteWorkout,
+        openEditWorkoutModal,
+        closeEditWorkoutModal,
+        saveWorkoutChanges
     };
 }

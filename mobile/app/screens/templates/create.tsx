@@ -3,8 +3,8 @@ import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { createTemplate } from '@/services/templateService';
+import { customAlert } from '@/components/main/CustomAlert';
 import TemplateForm from '@/components/templates/templateForm';
-import { Alert } from 'react-native';
 
 export default function CreateTemplateScreen() {
     const router = useRouter();
@@ -14,7 +14,7 @@ export default function CreateTemplateScreen() {
             await createTemplate(data);
             router.back();
         } catch (error) {
-            Alert.alert("Error", "Failed to create routine");
+            customAlert("Error", "Failed to create routine");
         }
     };
 

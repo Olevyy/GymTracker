@@ -1,8 +1,9 @@
 // Edit existing template
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, View, Alert } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { customAlert } from '@/components/main/CustomAlert';
 import { getTemplateById, updateTemplate } from '@/services/templateService';
 import TemplateForm from '@/components/templates/templateForm';
 
@@ -34,7 +35,7 @@ export default function EditTemplateScreen() {
                     exercises: formattedExercises
                 });
             } catch (error) {
-                Alert.alert("Error", "Failed to load template");
+                customAlert("Error", "Failed to load template");
                 router.back();
             } finally {
                 setLoading(false);
@@ -49,7 +50,7 @@ export default function EditTemplateScreen() {
             await updateTemplate(Number(id), data);
             router.back();
         } catch (error) {
-            Alert.alert("Error", "Failed to update routine");
+            customAlert("Error", "Failed to update routine");
         }
     };
 

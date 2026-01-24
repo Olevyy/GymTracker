@@ -10,7 +10,7 @@ export async function apiFetch(
     retry = true
 ): Promise<Response> {
     let token = await getAccessToken();
-
+    console.log("Using access token:", token);
     const headers = {
         ...(options.headers || {}),
         "Content-Type": "application/json",

@@ -1,8 +1,8 @@
 // Context to strore active workout data globally in app
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
-import { Alert } from 'react-native';
+import { customAlert } from '@/components/main/CustomAlert';
 import { useRouter } from 'expo-router';
-
+import { WorkoutSummaryResponse } from '@/services/workoutService';
 import { createWorkout, CreateWorkoutPayload } from '@/services/workoutService';
 import { Exercise } from '@/types/exercise';
 import { ActiveExercise } from '@/components/workout/workoutExercise'; 
@@ -31,6 +31,9 @@ interface WorkoutContextType {
     finishWorkout: () => Promise<void>;
     startWorkoutFromTemplate: (template: WorkoutTemplate) => void;
     resetWorkout: () => void; 
+
+    lastWorkoutSummary: WorkoutSummaryResponse | null;
+    clearSummary: () => void;
 }
 
 export const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
@@ -102,7 +105,7 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const removeExercise = useCallback((exIndex: number) => {
-        Alert.alert("Remove Exercise", "Are you sure?", [
+        customAlert("Remove Exercise", "Are you sure?", [
             { text: "Cancel", style: "cancel" },
             { 
                 text: "Remove", 
@@ -157,7 +160,7 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
    
 
     const cancelWorkout = useCallback(() => {
-        Alert.alert("Cancel Workout", "Are you sure? All progress will be lost.", [
+        customAlert("Cancel Workout", "Are you sure? All progress will be lost.", [
             { text: "No", style: "cancel" },
             { 
                 text: "Yes, Discard", 
@@ -194,9 +197,11 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         setActiveExercises(mappedExercises);
     }, []);
 
+    const [lastWorkoutSummary, setLastWorkoutSummary] = useState<WorkoutSummaryResponse | null>(null);
+
     const finishWorkout = useCallback(async () => {
         if (activeExercises.length === 0) {
-            Alert.alert("Empty Workout", "Add at least one exercise.");
+            customAlert("Empty Workout", "Add at least one exercise.");
             return;
         }
 
@@ -221,29 +226,33 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
             };
 
             if (payload.exercises.length === 0) {
-                Alert.alert("Incomplete Data", "Please fill in weight and reps.");
+                customAlert("Incomplete Data", "Please fill in weight and reps.");
                 setIsSubmitting(false);
                 return;
             }
 
-            await createWorkout(payload);
-            
-            Alert.alert("Success", "Workout saved!", [
+            const summaryData = await createWorkout(payload);
+            setLastWorkoutSummary(summaryData);
+            customAlert("Success", "Workout saved!", [
                 { 
                     text: "OK", 
                     onPress: () => {
                         resetWorkout(); 
-                        router.replace('/(tabs)/my-workouts');
+                        router.replace('/screens/workout/summary');
                     } 
                 }
             ]);
 
         } catch (error: any) {
-            Alert.alert("Error", error.message || "Could not save workout");
+            customAlert("Error", error.message || "Could not save workout");
         } finally {
             setIsSubmitting(false);
         }
     }, [activeExercises, workoutName, notes, router]);
+
+    const clearSummary = useCallback(() => {
+        setLastWorkoutSummary(null);
+    }, []);
 
     const value = useMemo(() => ({
         workoutName,
@@ -265,7 +274,9 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         finishWorkout,
         startWorkoutFromTemplate,
         startEmptyWorkout,
-        resetWorkout
+        resetWorkout,
+        lastWorkoutSummary,
+        clearSummary
     }), [
         workoutName,
         setWorkoutName,
@@ -287,6 +298,7 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         startWorkoutFromTemplate,
         startEmptyWorkout,
         resetWorkout
+        
     ]);
 
     return (

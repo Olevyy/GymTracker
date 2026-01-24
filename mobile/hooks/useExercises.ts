@@ -43,7 +43,8 @@ export function useExercises() {
             setExercises(prev => isReset ? response.results : [...prev, ...response.results]);
             setHasMore(!!response.next); 
         } catch (err: any) {
-            console.error(err);
+            console.error(err);            
+            setHasMore(false); // Prevent further load more attempts on error
         } finally {
             setLoading(false);
         }

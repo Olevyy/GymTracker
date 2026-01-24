@@ -108,7 +108,10 @@ export default function ActiveWorkoutScreen() {
                     <Text className="text-white text-xl font-bold">Select Exercise</Text>
                 </View>
                 
-                <ExerciseSelector onItemPress={addExercise} />
+                <ExerciseSelector 
+                    onItemPress={addExercise} 
+                    onViewDetails={(exercise) => router.push(`/screens/exercises/${exercise.id}`)}
+                />
                 
             </SafeAreaView>
         </Modal>

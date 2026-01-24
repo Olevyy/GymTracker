@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Alert, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { customAlert } from '@/components/main/CustomAlert';
 
 import { registerUser } from '@/services/authService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,11 +21,11 @@ export default function RegisterScreen() {
   const handleRegister = async () => {
     // Simple validation
     if (!form.username || !form.email || !form.password) {
-      Alert.alert('Register error', 'Fill all fields please.');
+      customAlert('Register error', 'Fill all fields please.');
       return;
     }
     if (form.password !== form.confirmPassword) {
-      Alert.alert('Register error', 'Passwords do not match.');
+      customAlert('Register error', 'Passwords do not match.');
       return;
     }
 
@@ -43,7 +44,7 @@ export default function RegisterScreen() {
       router.replace('/(tabs)');
       
     } catch (error: any) {
-      Alert.alert('Register error', error.message || 'Something went wrong.');
+      customAlert('Register error', error.message || 'Something went wrong.');
     } finally {
       setIsLoading(false);
     }

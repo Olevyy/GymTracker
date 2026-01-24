@@ -44,7 +44,7 @@ export default function ExerciseDetailScreen() {
     <SafeAreaView className="flex-1 bg-black" edges={['bottom']}> 
       <Stack.Screen options={{ headerShown: false }} />
       
-      <ScrollView contentContainerStyle={{ paddingBottom: 40 }} stickyHeaderIndices={[2]}> 
+      <ScrollView contentContainerStyle={{ paddingBottom: 40 }} stickyHeaderIndices={[2]} nestedScrollEnabled = {true}> 
         
         {/* IMAGE CAROUSEL */}
         <View className="relative h-72 w-full bg-white">

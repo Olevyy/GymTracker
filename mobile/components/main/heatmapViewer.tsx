@@ -12,11 +12,11 @@ export default function HeatmapViewer({ data }: HeatmapViewerProps) {
     const [side, setSide] = useState<'front' | 'back'>('front');
 
     const CUSTOM_COLORS = [
-        '#e0e0e0',
-        '#a0d0f8', 
-        '#339af0', 
-        '#0047b3',  
-        '#00317aff'  
+        '#e6e6e6',
+        '#fcbba1', 
+        '#fb6a4a', 
+        '#cb181d',  
+        '#67000d'  
     ];
 
     return (

@@ -34,7 +34,20 @@ export interface WorkoutStats {
     body_parts: HeatmapData[];
 }
 
-export async function createWorkout(workoutData: CreateWorkoutPayload) {
+export interface NewRecord{
+    exercise_id: number;
+    exercise_name: string;
+    old_1rm: number;
+    new_1rm: number;
+}
+
+export interface WorkoutSummaryResponse {
+    id: number;
+    total_volume: number;
+    new_records: NewRecord[];
+}
+
+export async function createWorkout(workoutData: CreateWorkoutPayload): Promise<WorkoutSummaryResponse> {
     const response = await apiFetch(ENDPOINTS.WORKOUTS, {
         method: 'POST',
         body: JSON.stringify(workoutData),
