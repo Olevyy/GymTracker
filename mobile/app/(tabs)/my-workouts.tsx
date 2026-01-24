@@ -115,12 +115,7 @@ export default function MyWorkoutsScreen() {
                       })}
                   </Text>
                   
-                  {/* Status Badge */}
-                  <View className={`mt-2 self-start px-2 py-0.5 rounded ${item.status === 'completed' ? 'bg-green-900/30' : 'bg-yellow-900/30'}`}>
-                      <Text className={`text-xs ${item.status === 'completed' ? 'text-green-400' : 'text-yellow-400'}`}>
-                          {item.status === 'completed' ? 'Completed' : 'In Progress'}
-                      </Text>
-                  </View>
+
               </View>
               <Ionicons name="chevron-forward" size={20} color="#6B7280" />
             </TouchableOpacity>

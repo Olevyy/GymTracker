@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Alert } from 'react-native';
+import { customAlert } from '@/components/main/CustomAlert';
 import { useRouter } from 'expo-router';
 import { 
     getWorkoutDetails, 
@@ -38,7 +38,7 @@ export function useWorkoutDetail(workoutId: string | undefined) {
             const data = await getWorkoutDetails(workoutId);
             setWorkout(data);
         } catch (error) {
-            Alert.alert("Error", "Could not load workout details");
+            customAlert("Error", "Could not load workout details");
             router.back();
         } finally {
             setLoading(false);
@@ -74,7 +74,7 @@ export function useWorkoutDetail(workoutId: string | undefined) {
             closeEditModal();
             fetchDetails();
         } catch (error) {
-            Alert.alert("Error", "Failed to update set");
+            customAlert("Error", "Failed to update set");
         } finally {
             setIsSaving(false);
         }
@@ -82,7 +82,7 @@ export function useWorkoutDetail(workoutId: string | undefined) {
 
     const handleDeleteSet = async () => {
         if (!editingSet) return;
-        Alert.alert("Delete Set", "Are you sure?", [
+        customAlert("Delete Set", "Are you sure?", [
             { text: "Cancel", style: "cancel" },
             { 
                 text: "Delete", 
@@ -92,14 +92,14 @@ export function useWorkoutDetail(workoutId: string | undefined) {
                         await deleteWorkoutSet(editingSet.id);
                         closeEditModal();
                         fetchDetails();
-                    } catch(e) { Alert.alert("Error", "Failed to delete set"); }
+                    } catch(e) { customAlert("Error", "Failed to delete set"); }
                 } 
             }
         ]);
     };
 
     const handleDeleteExercise = (exerciseId: number) => {
-        Alert.alert("Remove Exercise", "This will remove the exercise and all its sets.", [
+        customAlert("Remove Exercise", "This will remove the exercise and all its sets.", [
             { text: "Cancel", style: "cancel" },
             { 
                 text: "Remove", 
@@ -108,14 +108,14 @@ export function useWorkoutDetail(workoutId: string | undefined) {
                     try {
                         await deleteWorkoutExercise(exerciseId);
                         fetchDetails();
-                    } catch(e) { Alert.alert("Error", "Failed to remove exercise"); }
+                    } catch(e) { customAlert("Error", "Failed to remove exercise"); }
                 } 
             }
         ]);
     };
 
     const handleDeleteWorkout = () => {
-        Alert.alert(
+        customAlert(
             "Delete Workout",
             "Are you sure you want to delete this entire workout history?",
             [
@@ -129,7 +129,7 @@ export function useWorkoutDetail(workoutId: string | undefined) {
                             await deleteWorkout(workout.id);
                             router.back(); 
                         } catch (e) {
-                            Alert.alert("Error", "Failed to delete workout");
+                            customAlert("Error", "Failed to delete workout");
                         }
                     } 
                 }
@@ -162,7 +162,7 @@ export function useWorkoutDetail(workoutId: string | undefined) {
             closeEditWorkoutModal();
             fetchDetails();
         } catch (error) {
-            Alert.alert("Error", "Failed to update workout");
+            customAlert("Error", "Failed to update workout");
         } finally {
             setIsSaving(false);
         }

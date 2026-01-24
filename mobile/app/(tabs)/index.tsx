@@ -1,9 +1,10 @@
 // Welcome screen - create new training
 import React, {useState, useEffect, useCallback} from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator} from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import {useRouter} from 'expo-router'
+import { customAlert } from '@/components/main/CustomAlert';
 import StartWorkoutModal from '@/components/main/startWorkoutModal';
 import { getWorkoutStats, WorkoutStats } from '@/services/workoutService';
 import HeatmapViewer from '@/components/main/heatmapViewer';
@@ -20,7 +21,7 @@ export default function HomeScreen() {
 
   const handleBeginPress = () => {
       if (activeExercises.length > 0) {
-          Alert.alert(
+          customAlert(
               "Workout in Progress",
               "Starting a new workout will discard your current progress.",
               [

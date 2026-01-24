@@ -1,8 +1,9 @@
 // Shows users history for exercise - overall records, chart over time
-import React from 'react';
-import { View, Text, Dimensions } from 'react-native';
-import { LineChart } from 'react-native-chart-kit';
+import React, { useState } from 'react';
+import { View, Text, Dimensions, Modal, TouchableOpacity } from 'react-native';
+import { LineChart } from 'react-native-gifted-charts';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { ExerciseHistoryItem, ExerciseRecords } from '@/services/exercisesService';
 
 interface Props {
@@ -10,23 +11,41 @@ interface Props {
     records: ExerciseRecords | null;
 }
 
-const RecordCard = ({ title, data, icon, color }: any) => (
-    <View className="bg-gray-900 flex-1 p-4 rounded-xl border border-gray-800 mx-1">
-        <View className="flex-row items-center mb-2">
-            <Ionicons name={icon} size={18} color={color} />
-            <Text className="text-gray-400 text-xs font-bold ml-1 uppercase">{title}</Text>
+const RecordCard = ({ title, data, icon, color }: any) => {
+    let displayValue = '0';
+    let unit = 'kg';
+    let subText = '';
+
+    if (data) {
+        if (title === 'Max Weight') {
+            displayValue = parseFloat(data.weight).toFixed(1);
+            subText = `x ${data.reps}`;
+        } else {
+            displayValue = parseFloat(data.value).toFixed(1);
+        }
+    }
+
+    return (
+        <View className="bg-gray-900 flex-1 p-4 rounded-xl border border-gray-800 mx-1">
+            <View className="flex-row items-center mb-2">
+                <Ionicons name={icon} size={18} color={color} />
+                <Text className="text-gray-400 text-xs font-bold ml-1 uppercase">{title}</Text>
+            </View>
+            <Text className="text-white text-2xl font-bold">
+                {displayValue} 
+                <Text className="text-sm text-gray-500 font-normal"> {unit}</Text>
+                {subText && <Text className="text-sm text-gray-500 font-normal"> {subText}</Text>}
+            </Text>
+            <Text className="text-gray-500 text-[10px] mt-1">
+                {data ? new Date(data.date).toLocaleDateString() : '-'}
+            </Text>
         </View>
-        <Text className="text-white text-2xl font-bold">
-            {data?.value ? parseFloat(data.value).toFixed(1) : '0'} 
-            <Text className="text-sm text-gray-500 font-normal"> kg</Text>
-        </Text>
-        <Text className="text-gray-500 text-[10px] mt-1">
-            {data ? new Date(data.date).toLocaleDateString() : '-'}
-        </Text>
-    </View>
-);
+    );
+};
 
 export default function ExerciseHistoryTab({ history, records }: Props) {
+    const router = useRouter();
+    const [selectedPoint, setSelectedPoint] = useState<ExerciseHistoryItem | null>(null);
     
     if (history.length === 0) {
         return (
@@ -41,12 +60,11 @@ export default function ExerciseHistoryTab({ history, records }: Props) {
     const chartDataReversed = [...history].reverse();
     const limitedData = chartDataReversed.slice(-10);
     
-    const chartLabels = limitedData.map(h => {
-        const d = new Date(h.date);
-        return `${d.getDate()}/${d.getMonth() + 1}`;
-    });
-    
-    const chartValues = limitedData.map(h => h.session_1rm || 0);
+    const chartData = limitedData.map((h, index) => ({
+        value: h.session_1rm || 0,
+        label: `${new Date(h.date).getDate()}/${new Date(h.date).getMonth() + 1}`,
+        onPress: () => setSelectedPoint(limitedData[index])
+    }));
 
     return (
         <View className="pb-10 px-4 pt-4">
@@ -69,30 +87,36 @@ export default function ExerciseHistoryTab({ history, records }: Props) {
 
         {/* CHART */}
         <View className="mb-8">
-            <Text className="text-white font-bold text-lg mb-4 ml-1">1RM Progress</Text>
+            <Text className="text-white font-bold text-lg mb-4 ml-1">1RM Progress [kg]</Text>
             {/* Check if we have data to draw */}
-            {chartValues.some(v => v > 0) ? (
+            {chartData.some(d => d.value > 0) ? (() => {
+                const maxDataVal = Math.max(...chartData.map(d => d.value));
+                const stepValue = Math.ceil((maxDataVal * 1.1) / 5);
+                return (
                 <LineChart
-                    data={{
-                        labels: chartLabels,
-                        datasets: [{ data: chartValues }]
-                    }}
-                    width={Dimensions.get("window").width - 32} 
+                    data={chartData}
+                    width={Dimensions.get("window").width - 32}
                     height={220}
-                    yAxisSuffix="kg"
-                    chartConfig={{
-                        backgroundColor: "#000000",
-                        backgroundGradientFrom: "#111827",
-                        backgroundGradientTo: "#111827",
-                        decimalPlaces: 0, 
-                        color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`, 
-                        labelColor: (opacity = 1) => `rgba(156, 163, 175, ${opacity})`, 
-                        propsForDots: { r: "4", strokeWidth: "2", stroke: "#3B82F6" }
-                    }}
-                    bezier
-                    style={{ borderRadius: 16 }}
+                    color="#3B82F6"
+                    thickness={3}
+                    dataPointsColor="#3B82F6"
+                    dataPointsRadius={6}
+                    yAxisTextStyle={{ color: '#9CA3AF' }}
+                    xAxisLabelTextStyle={{ color: '#9CA3AF' }}
+                    backgroundColor="#111827"
+                    showVerticalLines={false}
+                    spacing={40}
+                    initialSpacing={20}
+                    endSpacing={20}
+                    yAxisColor="#9CA3AF"
+                    xAxisColor="#9CA3AF"
+                    rulesColor="#374151"
+
+                    maxValue={stepValue * 5}
+                    stepValue={stepValue}
                 />
-            ) : (
+                );
+            })() : (
                 <View className="h-40 bg-gray-900 rounded-xl items-center justify-center border border-gray-800">
                     <Text className="text-gray-500">Not enough data for chart</Text>
                 </View>
@@ -102,7 +126,11 @@ export default function ExerciseHistoryTab({ history, records }: Props) {
         {/* RECENT HISTORY LIST */}
         <Text className="text-white font-bold text-lg mb-4 ml-1">Recent Sessions</Text>
         {history.map((item) => (
-            <View key={item.workout_id} className="bg-gray-900 mb-3 rounded-xl border border-gray-800 p-4">
+            <TouchableOpacity 
+                key={item.workout_id} 
+                className="bg-gray-900 mb-3 rounded-xl border border-gray-800 p-4"
+                onPress={() => router.push(`/screens/workout/${item.workout_id}`)}
+            >
                 <View className="flex-row justify-between items-center mb-3 border-b border-gray-800 pb-2">
                     <View>
                         <Text className="text-white font-bold">{new Date(item.date).toLocaleDateString()}</Text>
@@ -125,8 +153,31 @@ export default function ExerciseHistoryTab({ history, records }: Props) {
                         </View>
                     ))}
                 </View>
-            </View>
+            </TouchableOpacity>
             ))}
+
+        {/* Modal for selected point */}
+        <Modal visible={!!selectedPoint} transparent animationType="fade">
+            <View className="flex-1 bg-black/50 justify-center items-center">
+                <View className="bg-gray-900 p-6 rounded-xl border border-gray-800 mx-4">
+                    <Text className="text-white text-lg font-bold mb-4">Session Details</Text>
+                    {selectedPoint && (
+                        <>
+                            <Text className="text-gray-400 mb-2">Date: {new Date(selectedPoint.date).toLocaleDateString()}</Text>
+                            <Text className="text-gray-400 mb-2">Workout: {selectedPoint.workout_name}</Text>
+                            <Text className="text-white font-bold mb-4">1RM: {selectedPoint.session_1rm} kg</Text>
+                           
+                        </>
+                    )}
+                    <TouchableOpacity 
+                        className="bg-blue-600 p-3 rounded-lg mt-4"
+                        onPress={() => setSelectedPoint(null)}
+                    >
+                        <Text className="text-white text-center font-bold">Close</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </Modal>
         </View>
     );
 }

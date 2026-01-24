@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { customAlert } from '@/components/main/CustomAlert';
 
 import { logoutUser } from '@/services/authService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,7 +13,7 @@ export default function MenuScreen() {
   const router = useRouter();
 
   const handleLogout = () => {
-    Alert.alert(
+    customAlert(
       "Log Out",
       "Are you sure you want to log out?",
       [
@@ -26,7 +27,7 @@ export default function MenuScreen() {
               await checkAuth();
               router.replace('/(auth)/login'); 
             } catch (error) {
-              Alert.alert("Error", "Failed to log out.");
+              customAlert("Error", "Failed to log out.");
             }
           }
         }
