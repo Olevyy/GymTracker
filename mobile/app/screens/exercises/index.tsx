@@ -1,3 +1,4 @@
+// Exercise Library Screen - shows list of exercises with search and filters. Press to view details
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';

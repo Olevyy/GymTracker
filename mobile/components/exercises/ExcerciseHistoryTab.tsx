@@ -63,7 +63,12 @@ export default function ExerciseHistoryTab({ history, records }: Props) {
     const chartData = limitedData.map((h, index) => ({
         value: h.session_1rm || 0,
         label: `${new Date(h.date).getDate()}/${new Date(h.date).getMonth() + 1}`,
-        onPress: () => setSelectedPoint(limitedData[index])
+        date: h.date,
+        workout_name: h.workout_name,
+        session_1rm: h.session_1rm,
+        sets: h.sets,
+        workout_id: h.workout_id
+        
     }));
 
     return (
@@ -114,6 +119,34 @@ export default function ExerciseHistoryTab({ history, records }: Props) {
 
                     maxValue={stepValue * 5}
                     stepValue={stepValue}
+
+                    pointerConfig={{
+                        pointerStripHeight: 160,
+                        pointerStripColor: 'rgba(59, 130, 246, 0.5)',
+                        pointerStripWidth: 2,
+                        pointerColor: 'white',
+                        radius: 6,
+                        pointerLabelWidth: 100,
+                        pointerLabelHeight: 90,
+                        activatePointersOnLongPress: false,
+                        autoAdjustPointerLabelPosition: false,
+                        pointerLabelComponent: (items: any) => {
+                            const item = items[0]; // Pobieramy punkt danych
+                            return (
+                                <View className="bg-gray-900 p-3 rounded-lg border border-gray-700 w-28 justify-center items-center">
+                                    <Text className="text-gray-400 text-[10px] mb-1">
+                                        {new Date(item.date).toLocaleDateString()}
+                                    </Text>
+                                    <Text className="text-white font-bold text-lg mb-1">
+                                        {item.value} kg
+                                    </Text>
+                                    <Text className="text-gray-500 text-[10px] text-center">
+                                        {item.workout_name}
+                                    </Text>
+                                </View>
+                            );
+                        },
+                    } as any}
                 />
                 );
             })() : (

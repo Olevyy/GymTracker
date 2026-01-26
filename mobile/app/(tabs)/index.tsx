@@ -1,6 +1,6 @@
 // Welcome screen - create new training
 import React, {useState, useEffect, useCallback} from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator} from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import {useRouter} from 'expo-router'
@@ -82,9 +82,18 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-black" edges={['top']}>
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
-        
-
+      <ScrollView 
+        contentContainerStyle={{ padding: 16 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#3B82F6"
+            colors={["#3B82F6"]}
+            progressBackgroundColor="#1F2937"
+          />
+        }
+      >
         <View className="mb-8">
           <Text className="text-gray-400 text-xl font-medium">Hi buddy</Text>
           <Text className="text-white text-2xl font-bold">Ready for some grind? 💪</Text>
