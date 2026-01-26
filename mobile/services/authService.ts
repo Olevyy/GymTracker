@@ -53,20 +53,28 @@ export async function registerUser(userData: any) {
 }
 
 export async function logoutUser() {
-    const refresh = await SecureStore.getItemAsync(REFRESH_KEY);
-    await clearTokens(); // Clear tokens locally first
+    try {
+        // Get tokens
+        const refresh = await SecureStore.getItemAsync(REFRESH_KEY);
+        const access = await SecureStore.getItemAsync(ACCESS_KEY);
 
-    if (refresh) {
-        try {
-            router.replace("/(auth)/login");
-            await fetch(`${API_URL}${ENDPOINTS.LOGOUT}`, {
+        // If we still have tokens, inform backend
+        if (refresh && access) {
+             fetch(`${API_URL}${ENDPOINTS.LOGOUT}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${access}` 
+                },
                 body: JSON.stringify({ refresh }),
             });
-        } catch (e) {
-            console.log("Logout backend warning:", e);
         }
+    } catch (e) {
+        console.log("Logout error:", e);
+    } finally {
+        // Always clear tokens and redirect to login
+        await clearTokens();
+        router.replace("/(auth)/login");
     }
 }
 
@@ -85,7 +93,6 @@ export async function refreshAccessToken() {
         });
         clearTimeout(timeoutId1);
         if (!res.ok) {
-            await logoutUser();
             return null;
         }
 
