@@ -40,17 +40,20 @@ STATIC_BODY_PARTS = ["head", "hands", "feet", "ankles"]
 def get_weekly_stats(user):
     
     before = timezone.now() - timedelta(days=7) # Earliest we track
-    workouts = Workout.objects.filter(
+    workouts_count = Workout.objects.filter(
         user=user,
-        start_time__gte = before # After this date
-    )
-    workouts_count = workouts.count()
+        start_time__gte = before
+    ).count()
 
     # Select * from WorkoutSet where workout.user = user and workout.start_time >= before 
     sets = WorkoutSet.objects.filter(
         workout_exercise__workout__user=user,
         workout_exercise__workout__start_time__gte=before
-    ).select_related('workout_exercise__exercise') # 
+    ).select_related('workout_exercise__exercise') \
+     .prefetch_related(
+         'workout_exercise__exercise__primary_muscles',
+         'workout_exercise__exercise__secondary_muscles'
+     ) # 
 
     muscle_sets = defaultdict(float)
     volume = 0.0
@@ -64,15 +67,14 @@ def get_weekly_stats(user):
         volume += weight * reps
         
         # Count sets for each muscle type
-        if exercise.primary_muscles:
-            for muscle in exercise.primary_muscles:
-                clean_name = str(muscle).lower().strip()
-                muscle_sets[clean_name] += 1.0
+        for muscle in exercise.primary_muscles.all():
+            clean_name = muscle.name.lower().strip()
+            muscle_sets[clean_name] += 1.0
 
-        if exercise.secondary_muscles:
-            for muscle in exercise.secondary_muscles:
-                clean_name = str(muscle).lower().strip()
-                muscle_sets[clean_name] += 0.5
+
+        for muscle in exercise.secondary_muscles.all():
+            clean_name = muscle.name.lower().strip()
+            muscle_sets[clean_name] += 0.5
 
     intensity = defaultdict(float)
 
@@ -120,15 +122,15 @@ def get_workouts_volume(user, muscle = None, days = 365):
             user=user,
             start_time__date__gte=start_time,
             start_time__date__lte=today
-        )
+        ).values('id', 'start_time', 'total_volume')
         
         for workout in workouts:
-            workout_date = workout.start_time.date()
+            workout_date = workout['start_time'].date()
             first_of_month = workout_date.replace(day=1)
             
             # Accumulate total volume per month
-            monthly_volume[first_of_month] += workout.total_volume
-            unique_workouts.add(workout.id)
+            monthly_volume[first_of_month] += workout['total_volume']
+            unique_workouts.add(workout['id'])
 
     else:
         # Filter sets by muscle
@@ -136,18 +138,24 @@ def get_workouts_volume(user, muscle = None, days = 365):
             workout__user = user,
             workout__start_time__date__gte=start_time,
             workout__start_time__date__lte=today,
-        ).select_related('workout')
+        )
 
         workout_exercise = workout_exercise.filter(
-            Q(exercise__primary_muscles__icontains=muscle) |
-            Q(exercise__secondary_muscles__icontains=muscle)
+            Q(exercise__primary_muscles__name__icontains=muscle) |
+            Q(exercise__secondary_muscles__name__icontains=muscle)
+        ).distinct()
+        
+        workout_exercise = workout_exercise.values(
+            'workout__id',
+            'workout__start_time',
+            'session_volume'
         )
 
         for exercise in workout_exercise:
-            date = exercise.workout.start_time.date()
+            date = exercise['workout__start_time'].date()
             first_of_month = date.replace(day=1)
-            monthly_volume[first_of_month] += exercise.session_volume
-            unique_workouts.add(exercise.workout.id)
+            monthly_volume[first_of_month] += exercise['session_volume']
+            unique_workouts.add(exercise['workout__id'])
     chart_data = []
 
 

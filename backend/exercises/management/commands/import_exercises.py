@@ -1,9 +1,9 @@
 import requests
 from django.core.management.base import BaseCommand
-from exercises.models import Exercise
+from exercises.models import Exercise, Muscle, Equipment
 
 class Command(BaseCommand):
-    help = 'Imports exercises from the yuhonas/free-exercise-db GitHub repository'
+    help = 'Imports exercises from the yuhonas/free-exercise-db GitHub repository mapping to M2M structure'
 
     def handle(self, *args, **options):
         JSON_URL = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json"
@@ -31,28 +31,48 @@ class Command(BaseCommand):
             # Sanitizing folder name for image URL construction
             folder_name = name.replace("(", "").replace(")", "").replace(" ", "_").replace("/", "_").replace(",","")
             
-            # Generating image URLs
             images = [
                 f"{BASE_IMAGE_URL}/{folder_name}/0.jpg",
                 f"{BASE_IMAGE_URL}/{folder_name}/1.jpg"
             ]
 
-            Exercise.objects.update_or_create(
+
+            exercise, created = Exercise.objects.update_or_create(
                 name=name,
                 defaults={
-                    'primary_muscles': item.get('primaryMuscles', []),
-                    'secondary_muscles': item.get('secondaryMuscles', []),
                     'force': item.get('force'),
                     'level': item.get('level'),
                     'mechanic': item.get('mechanic'),
-                    'equipment': item.get('equipment'),
                     'category': item.get('category', 'strength'),
                     'instructions': item.get('instructions', []),
                     'image_urls': images,
                 }
             )
+
+
+            # Primary Muscles
+            p_muscles = item.get('primaryMuscles', [])
+            for m_name in p_muscles:
+                clean_name = m_name.strip().title()
+                muscle_obj, _ = Muscle.objects.get_or_create(name=clean_name)
+                exercise.primary_muscles.add(muscle_obj)
+
+            # Secondary Muscles
+            s_muscles = item.get('secondaryMuscles', [])
+            for m_name in s_muscles:
+                clean_name = m_name.strip().title()
+                muscle_obj, _ = Muscle.objects.get_or_create(name=clean_name)
+                exercise.secondary_muscles.add(muscle_obj)
+
+            # Equipment
+            equipment_name = item.get('equipment')
+            if equipment_name:
+                clean_name = equipment_name.strip().title()
+                eq_obj, _ = Equipment.objects.get_or_create(name=clean_name)
+                exercise.equipment.add(eq_obj)
+
             count += 1
             if count % 50 == 0:
                 self.stdout.write(f"Processed {count}/{total}...")
 
-        self.stdout.write(self.style.SUCCESS(f"Success! Imported {count} exercises."))
+        self.stdout.write(self.style.SUCCESS(f"Success! Imported/Updated {count} exercises."))

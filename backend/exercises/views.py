@@ -19,7 +19,7 @@ class StandardResultsSetPagination(PageNumberPagination):
 # Filter class needed for muscle filtering
 class ExerciseFilter(django_filters.FilterSet):
     name = django_filters.CharFilter(lookup_expr='icontains')
-    equipment = django_filters.CharFilter(lookup_expr='icontains')
+    equipment = django_filters.CharFilter(field_name='equipment__name', lookup_expr='icontains')
     
     # Custom filter for primary muscle
     muscle = django_filters.CharFilter(method='filter_by_muscle')
@@ -29,7 +29,7 @@ class ExerciseFilter(django_filters.FilterSet):
         fields = ['level', 'category', 'mechanic', 'force'] # exact matches
 
     def filter_by_muscle(self, queryset, name, value):
-        return queryset.filter(primary_muscles__contains=[value]) # Filter primary_muscles array field
+        return queryset.filter(primary_muscles__name__icontains=value) # Filter primary_muscles array field
 
 # Auto-generated CRUD endpoints for Exercise
 class ExerciseViewSet(viewsets.ReadOnlyModelViewSet): # ReadOnly
