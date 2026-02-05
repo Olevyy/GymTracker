@@ -13,10 +13,10 @@ export default function HeatmapViewer({ data }: HeatmapViewerProps) {
 
     const CUSTOM_COLORS = [
         '#e6e6e6',
-        '#fcbba1', 
-        '#fb6a4a', 
-        '#cb181d',  
-        '#67000d'  
+        '#ffb3b3', 
+        '#ff8080', 
+        '#ff3333',  
+        '#cc0000'  
     ];
 
     return (

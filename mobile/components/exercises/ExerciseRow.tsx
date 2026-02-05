@@ -16,15 +16,25 @@ export default function ExerciseRow({ item, onPress, onViewDetails }: Props) {
     const imageUrl = item.image_urls && item.image_urls.length > 0 ? item.image_urls[0] : null;
 
     // Colors for categories
-    const getCategoryColor = (cat: Category) => {
+    const getCategoryStyles = (cat: Category) => {
         switch (cat) {
-            case Category.cardio: return 'text-orange-400 bg-orange-900/30';
-            case Category.stretching: return 'text-green-400 bg-green-900/30';
+            case Category.cardio: 
+                return { bg: 'bg-orange-900/30', text: 'text-orange-400' };
+            
+            case Category.stretching: 
+                return { bg: 'bg-green-900/30', text: 'text-green-400' };
+            
             case Category.powerlifting:
             case Category.strength:
-            case Category.olympic_weightlifting: return 'text-red-400 bg-red-900/30';
-            case Category.plyometrics: return 'text-yellow-400 bg-yellow-900/30';
-            default: return 'text-gray-400 bg-gray-800';
+            case Category.strongman:
+            case Category.olympic_weightlifting: 
+                return { bg: 'bg-red-900/30', text: 'text-red-400' };
+            
+            case Category.plyometrics: 
+                return { bg: 'bg-yellow-900/30', text: 'text-yellow-400' };
+            
+            default: 
+                return { bg: 'bg-black-800', text: 'text-white-400' };
         }
     };
 
@@ -36,7 +46,7 @@ export default function ExerciseRow({ item, onPress, onViewDetails }: Props) {
 
     // Limit muscles to display
     const visibleMuscles = allMuscles.slice(0, 3); 
-
+    const categoryStyle = item.category ? getCategoryStyles(item.category) : null;
     return (
         <TouchableOpacity 
             className="flex-row bg-gray-900 mb-3 rounded-xl overflow-hidden border border-gray-800 h-32"
@@ -85,9 +95,9 @@ export default function ExerciseRow({ item, onPress, onViewDetails }: Props) {
                 ))}
                 
                 {/* Category tag */}
-                {item.category ? (
-                        <View className={`px-2 py-0.5 rounded mb-1 ${getCategoryColor(item.category)}`}>
-                             <Text className="text-[10px] capitalize font-bold opacity-90">
+                {item.category && categoryStyle ? (
+                        <View className={`px-2 py-0.5 rounded mb-1 ${categoryStyle.bg}`}>
+                             <Text className={`text-[10px] capitalize font-bold opacity-90 ${categoryStyle.text}`}>
                                 {item.category}
                             </Text>
                         </View>
