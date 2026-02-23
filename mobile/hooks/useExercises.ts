@@ -1,8 +1,8 @@
-// Storages exercises data, handles filtering and pagination
+// Exercises list management with pagination and filters
 import { useState, useEffect } from 'react';
 import { getExercises } from '@/services/exercisesService';
 import { Exercise, Muscle, Level, Category } from '@/types/exercise';
-
+import { sampleChartData } from '@/utils/chartUtils';
 export function useExercises() {
     const [exercises, setExercises] = useState<Exercise[]>([]);
     const [loading, setLoading] = useState(false);
