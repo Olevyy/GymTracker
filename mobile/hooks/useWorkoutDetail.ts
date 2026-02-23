@@ -1,3 +1,4 @@
+// Manages workout detail screen state and operations
 import { useState, useEffect, useCallback } from 'react';
 import { customAlert } from '@/components/main/CustomAlert';
 import { useRouter } from 'expo-router';
