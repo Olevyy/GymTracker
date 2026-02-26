@@ -2,13 +2,21 @@
 
 A full-stack fitness app for tracking workouts, browsing exercises and viewing workout history or statistics.
 
+## Demo
+
+### 1. Navigation & Heatmap
+### 2. Exercises & 1RM History
+### 3. Weekly Summary
+### 4. Workout Flow & PR Detection
+
 ## Features
 - **User authentication**: Secure JWT-based login and registration.
 - **Optimized Performance**: Sets are logged locally for zero latency and synced to the backend only upon workout completion.
-- **Persistent Drafts**: Active workouts are saved locally, allowing you to close the app and resume later without data loss.
-- **Workout History**: Detailed logs of past sessions, personal records with charts, muscle Heatmaps and last week summarize.
+- **Workout History**: Detailed logs of past sessions, personal records with charts, muscle Heatmaps, last week and overall summary.
 - **Exercise Database**: Advanced filtering by muscle group and category.
 - **Templates**: Create reusable workout plans for quick session starts.
+
+
 
 ## Tech Stack
 - **Backend**: Django REST Framework, PostgreSQL, JWT Auth
@@ -62,7 +70,4 @@ GymTracker/
    npm install
    npx expo start
    ```
-
-
-## License
 
