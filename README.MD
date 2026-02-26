@@ -5,9 +5,13 @@ A full-stack fitness app for tracking workouts, browsing exercises and viewing w
 ## Demo
 
 ### 1. Navigation & Heatmap
+https://github.com/user-attachments/assets/42a0b236-7648-46d0-a680-8a7e5bf9bd45
 ### 2. Exercises & 1RM History
+https://github.com/user-attachments/assets/fd820d88-79f1-405d-aaab-0bc7084baf65
 ### 3. Weekly Summary
+https://github.com/user-attachments/assets/537c1540-b286-4953-b657-a350b62366e4
 ### 4. Workout Flow & PR Detection
+https://github.com/user-attachments/assets/49d245bc-40cf-4bcf-99c9-254a6c0e9e4c
 
 ## Features
 - **User authentication**: Secure JWT-based login and registration.
