@@ -1,3 +1,4 @@
+// Exercise data, including details, history and records
 import { useState, useEffect, useCallback } from 'react';
 import { 
     getExerciseById, 

@@ -1,4 +1,4 @@
-// Storages exercises data, handles filtering and pagination
+// Exercises list management with pagination and filters
 import { useState, useEffect } from 'react';
 import { getExercises } from '@/services/exercisesService';
 import { Exercise, Muscle, Level, Category } from '@/types/exercise';

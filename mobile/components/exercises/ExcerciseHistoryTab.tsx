@@ -1,11 +1,12 @@
-// Shows users history for exercise - overall records, chart over time
+// Shows users history for exercise - overall records, 1RM chart over time
 import React, { useState } from 'react';
 import { View, Text, Dimensions, Modal, TouchableOpacity } from 'react-native';
 import { LineChart } from 'react-native-gifted-charts';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ExerciseHistoryItem, ExerciseRecords } from '@/services/exercisesService';
-
+import ChartTimeFilter, { TimeFilterType } from '@/components/exerciseAbout/ChartTimeFilter';
+import { sampleChartData } from '@/utils/chartUtils';
 interface Props {
     history: ExerciseHistoryItem[];
     records: ExerciseRecords | null;
@@ -46,6 +47,7 @@ const RecordCard = ({ title, data, icon, color }: any) => {
 export default function ExerciseHistoryTab({ history, records }: Props) {
     const router = useRouter();
     const [selectedPoint, setSelectedPoint] = useState<ExerciseHistoryItem | null>(null);
+    const [timeFilter, setTimeFilter] = useState<TimeFilterType>('6M');
     
     if (history.length === 0) {
         return (
@@ -58,9 +60,26 @@ export default function ExerciseHistoryTab({ history, records }: Props) {
 
     // Prepare chart data (reverse to show chronological order)
     const chartDataReversed = [...history].reverse();
-    const limitedData = chartDataReversed.slice(-10);
     
-    const chartData = limitedData.map((h, index) => ({
+    const now = new Date();
+    const filteredData = chartDataReversed.filter(h => {
+        if (timeFilter === 'ALL') return true;
+        
+        const itemDate = new Date(h.date);
+        const diffDays = (now.getTime() - itemDate.getTime()) / (1000 * 3600 * 24);
+        
+        switch (timeFilter) {
+            case '1M': return diffDays <= 30;
+            case '3M': return diffDays <= 90;
+            case '6M': return diffDays <= 180;
+            case '1Y': return diffDays <= 365;
+            default: return true;
+        }
+    });
+
+    const limitedData = filteredData.length > 0 ? filteredData : chartDataReversed.slice(-1);
+    const sampledData = sampleChartData(limitedData, 9);
+    const chartData = sampledData.map((h, index) => ({
         value: h.session_1rm || 0,
         label: `${new Date(h.date).getDate()}/${new Date(h.date).getMonth() + 1}`,
         date: h.date,
@@ -70,6 +89,11 @@ export default function ExerciseHistoryTab({ history, records }: Props) {
         workout_id: h.workout_id
         
     }));
+
+    const chartWidth = Dimensions.get("window").width - 64;
+    const dynamicSpacing = chartData.length > 1 
+        ? (chartWidth - 40) / (chartData.length - 1) 
+        : 40;
 
     return (
         <View className="pb-10 px-4 pt-4">
@@ -93,6 +117,7 @@ export default function ExerciseHistoryTab({ history, records }: Props) {
         {/* CHART */}
         <View className="mb-8">
             <Text className="text-white font-bold text-lg mb-4 ml-1">1RM Progress [kg]</Text>
+            <ChartTimeFilter selected={timeFilter} onSelect={setTimeFilter} />
             {/* Check if we have data to draw */}
             {chartData.some(d => d.value > 0) ? (() => {
                 const maxDataVal = Math.max(...chartData.map(d => d.value));
@@ -100,7 +125,7 @@ export default function ExerciseHistoryTab({ history, records }: Props) {
                 return (
                 <LineChart
                     data={chartData}
-                    width={Dimensions.get("window").width - 32}
+                    width={chartWidth}
                     height={220}
                     color="#3B82F6"
                     thickness={3}
@@ -110,7 +135,7 @@ export default function ExerciseHistoryTab({ history, records }: Props) {
                     xAxisLabelTextStyle={{ color: '#9CA3AF' }}
                     backgroundColor="#111827"
                     showVerticalLines={false}
-                    spacing={40}
+                    spacing={dynamicSpacing}
                     initialSpacing={20}
                     endSpacing={20}
                     yAxisColor="#9CA3AF"
@@ -126,10 +151,10 @@ export default function ExerciseHistoryTab({ history, records }: Props) {
                         pointerStripWidth: 2,
                         pointerColor: 'white',
                         radius: 6,
-                        pointerLabelWidth: 100,
+                        pointerLabelWidth: 120,
                         pointerLabelHeight: 90,
                         activatePointersOnLongPress: false,
-                        autoAdjustPointerLabelPosition: false,
+                        autoAdjustPointerLabelPosition: true,
                         pointerLabelComponent: (items: any) => {
                             const item = items[0]; // Pobieramy punkt danych
                             return (

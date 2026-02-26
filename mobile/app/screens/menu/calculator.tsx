@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { calculateOneRepMax } from '@/utils/calculations';
 
 
-const CalcInput = ({ value, onChangeText, label, placeholder }: any) => {
+const CalcInput = ({ value, onChangeText, label}: any) => {
     const [isFocused, setIsFocused] = useState(false);
     return (
         <View className="flex-1 mx-2">
@@ -14,11 +14,9 @@ const CalcInput = ({ value, onChangeText, label, placeholder }: any) => {
             <TextInput
                 value={value}
                 onChangeText={onChangeText}
-                placeholder={isFocused ? '' : placeholder}
-                placeholderTextColor="#374151"
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
-                keyboardType={isFocused ? 'numeric' : 'default'}
+                keyboardType="numeric"
                 textAlign="center"
                 className={`bg-gray-900 text-white text-center h-16 rounded-2xl font-bold text-3xl border ${isFocused ? 'border-blue-500' : 'border-gray-800'}`}
                 style={{ textAlign: 'center' }}
@@ -59,13 +57,11 @@ export default function OneRepMaxScreen() {
                         label="Weight (kg)" 
                         value={weight} 
                         onChangeText={setWeight} 
-                        placeholder="100" 
                     />
                     <CalcInput 
                         label="Reps" 
                         value={reps} 
                         onChangeText={setReps} 
-                        placeholder="5" 
                     />
                 </View>
 
