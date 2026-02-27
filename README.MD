@@ -30,6 +30,11 @@ https://github.com/user-attachments/assets/49d245bc-40cf-4bcf-99c9-254a6c0e9e4c
 ### Production Deployment
 The backend is deployed on Google Cloud Run with Google Cloud SQL as the database. The mobile app connects to the production API via the configured endpoint.
 
+## Database Structure
+<img width="2597" height="1002" alt="Image" src="https://github.com/user-attachments/assets/14176f08-85b1-429b-96c9-f196949b50de" />
+
+The schema uses PostgreSQL with foreign key relationships to maintain data integrity and includes performance indexes on frequently queried fields.
+
 ## Code Structure
 
 ```
